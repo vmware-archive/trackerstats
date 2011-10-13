@@ -1,14 +1,12 @@
 class ProjectsController < ApplicationController
   before_filter :init_api_token
-
-  ITERATION_START = Date.parse("2011-07-19")
+  before_filter :init_project_and_date_range, :only => :show
 
   def index
     @projects = PivotalTracker::Project.all
   end
 
   def show
-    @project  = PivotalTracker::Project.find(params[:id].to_i)
     @stories  = @project.stories.all
 
     # Chart 0: Features, Bugs and Chores Total
@@ -33,7 +31,7 @@ class ProjectsController < ApplicationController
     end
 
     data_table = GoogleVisualr::DataTable.new
-    data_table.new_column('string', 'Iteration')
+    data_table.new_column('string', 'Week')
     data_table.new_column('number', 'All Features')
     data_table.new_column('number', 'Accepted Features')
     (1..max_value(features)).each do |week|
@@ -47,7 +45,7 @@ class ProjectsController < ApplicationController
 
     # Chart 2: How long did it take for features to be accepted in each week?
     data_table = GoogleVisualr::DataTable.new
-    data_table.new_column('number', 'Iteration')
+    data_table.new_column('number', 'Week')
     data_table.new_column('number', 'Features')
     stories_with_types_states(@stories, ["feature"], ["accepted"]).each do |story|
       week = week?(story.created_at)
@@ -85,13 +83,10 @@ class ProjectsController < ApplicationController
       bugs[week] ||= { created: 0, accepted:0 }
       bugs[week][:created]  += 1
       bugs[week][:accepted] += 1 if story.current_state == "accepted"
-      p week
-      p bugs[week][:created]
-      p ">>>>"
     end
 
     data_table = GoogleVisualr::DataTable.new
-    data_table.new_column('string', 'Iteration')
+    data_table.new_column('string', 'Week')
     data_table.new_column('number', 'All Bugs')
     data_table.new_column('number', 'Accepted Bugs')
     (1..max_value(bugs)).each do |week|
@@ -105,7 +100,7 @@ class ProjectsController < ApplicationController
 
     # Chart 5: How long did it take for bugs to be accepted in each week?
     data_table = GoogleVisualr::DataTable.new
-    data_table.new_column('number', 'Iteration')
+    data_table.new_column('number', 'Week')
     data_table.new_column('number', 'Bugs')
     stories_with_types_states(@stories, ["bug"], ["accepted"]).each do |story|
       week = week?(story.created_at)
@@ -139,20 +134,27 @@ class ProjectsController < ApplicationController
   private
 
   def init_api_token
-    # PivotalTracker::Client.token = params[:api_token]
-    PivotalTracker::Client.token = "a4fbfaa3e8bc138aac036ec80fb811f9"
+    PivotalTracker::Client.token = session[:api_token]
+  end
+
+  def init_project_and_date_range
+    @project  = PivotalTracker::Project.find(params[:id].to_i)
+
+    @start_date = params[:start_date].present? ? Date.parse(params[:start_date]) : 3.months.ago.to_date
+    @end_date = Date.parse(params[:end_date]) unless params[:end_date].blank?
   end
 
   def stories_with_types_states(stories, types, states)
     stories.select do |story|
-      next if story.created_at < ITERATION_START
+      next if story.created_at < @start_date || (@end_date && story.created_at > @end_date)
       (types.present? ? types.include?(story.story_type) : true) && (states.present? ? states.include?(story.current_state) : true)
     end
   end
 
   def week?(date)
-    return nil if date.blank? || date < ITERATION_START
-    ((date - ITERATION_START).to_i / 7) + 1
+    return nil if date.blank?
+    return nil if date < @start_date || (@end_date && date > @end_date)
+    ((date - @start_date).to_i / 7) + 1
   end
 
   def max_value(obj)

@@ -1,0 +1,10 @@
+!!!
+%html
+  %head
+    %title Tracker Stats
+    = javascript_include_tag "application"
+    %script{src: 'http://www.google.com/jsapi'}
+    = csrf_meta_tags
+  %body
+    = flash[:alert]
+    = yield

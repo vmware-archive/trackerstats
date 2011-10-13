@@ -1,0 +1,4 @@
+= form_for :session, :url => sessions_path do |form|
+  = label_tag "api_token", "API Token"
+  = text_field_tag "api_token"
+  = form.submit "Retrieve Projects"

@@ -1,3 +1,10 @@
+= form_for :project, :method => :get do |form|
+  = label_tag :start_date, "Start Date"
+  = text_field_tag :start_date, params[:start_date], :placeholder => "YYYY/MM/DD"
+  = label_tag :end_date, "End Date"
+  = text_field_tag :end_date, params[:end_date], :placeholder => "YYYY/MM/DD"
+  = form.submit "Refresh Charts"
+
 #chart_0
 = render_chart @chart_0, "chart_0"
 #chart_1
