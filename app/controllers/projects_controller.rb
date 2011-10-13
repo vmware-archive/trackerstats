@@ -131,6 +131,7 @@ class ProjectsController < ApplicationController
     @chart_6 = GoogleVisualr::Interactive::ColumnChart.new(data_table, opts)
   end
 
+
   private
 
   def init_api_token
@@ -140,7 +141,12 @@ class ProjectsController < ApplicationController
   def init_project_and_date_range
     @project  = PivotalTracker::Project.find(params[:id].to_i)
 
-    @start_date = params[:start_date].present? ? Date.parse(params[:start_date]) : 3.months.ago.to_date
+    if params[:start_date].blank?
+      @start_date = @project.iterations.all.detect { |iteration| iteration.number == 1 }.start
+    else
+      @start_date = Date.parse(params[:start_date])
+    end
+
     @end_date = Date.parse(params[:end_date]) unless params[:end_date].blank?
   end
 
