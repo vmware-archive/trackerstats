@@ -1,0 +1,8 @@
+# .pairs - configuration for 'git pair'
+# place in project or home directory
+pairs:
+  mg: Mike Grafton
+  ao: Atamert Ölçgen
+email:
+  prefix: pair
+  domain: pivotallabs.com

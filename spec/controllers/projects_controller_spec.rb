@@ -2,21 +2,47 @@ require 'spec_helper'
 
 describe ProjectsController do
 
+  before do
+    request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Basic.encode_credentials("pivotallabs", "pivotal8tracker")
+  end
+
   describe "#index" do
 
     render_views
 
     it "should find all the projects and display them" do
-      request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Basic.encode_credentials("pivotallabs", "pivotal8tracker")
+      project = PivotalTracker::Project.new
+      project.name = "Fake Project!!"
+      project.id = 12345
 
-      fake_project = PivotalTracker::Project.new
-      fake_project.name = "Fake Project!!"
-      fake_project.id = 12345
-      PivotalTracker::Project.stub(:all) { [fake_project] }
+      PivotalTracker::Project.stub(:all) { [project] }
       get :index
 
       response.body.should include("Fake Project!!")
       response.body.should include("/projects/12345")
+    end
+  end
+
+  describe "#show" do
+    it "should produce a story type chart" do
+
+      project = PivotalTracker::Project.new
+      project.id = 12345
+      PivotalTracker::Project.stub(:find) { project }
+
+      feature_story = PivotalTracker::Story.new :story_type => "feature", :created_at => DateTime.parse("2011-10-31 00:01:00 Z"),
+          :current_state => "accepted", :accepted_at => DateTime.parse("2011-10-31 00:02:00 Z")
+
+      bug_story = PivotalTracker::Story.new :story_type => "bug", :created_at => DateTime.parse("2011-10-31 00:01:00 Z"),
+          :current_state => "accepted", :accepted_at => DateTime.parse("2011-10-31 00:02:00 Z")
+
+      project.stories.stub(:all) { [feature_story, bug_story] }
+
+      get :show, {:id => 12345, :start_date => '2011-01-01'}
+
+      story_type_chart = assigns(:chart_0)
+
+      story_type_chart.options['title'].should == "What have we done?"
     end
   end
 end
