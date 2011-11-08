@@ -18,7 +18,7 @@ class ProjectsController < ApplicationController
     data_table.add_row( [ "Bugs"    , stories_with_types_states(@stories, ["bug"]     , ["accepted"]).size ] )
 
     opts     = { :width => 1000, :height => 500, :title => 'What have we done?' }
-    @chart_0 = GoogleVisualr::Interactive::PieChart.new(data_table, opts)
+    @story_type_chart = GoogleVisualr::Interactive::PieChart.new(data_table, opts)
 
 
     # Chart 1:  When are features discovered?

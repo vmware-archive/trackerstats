@@ -40,7 +40,7 @@ describe ProjectsController do
 
       get :show, {:id => 12345, :start_date => '2011-01-01'}
 
-      story_type_chart = assigns(:chart_0)
+      story_type_chart = assigns(:story_type_chart)
 
       data_table = story_type_chart.data_table
 
