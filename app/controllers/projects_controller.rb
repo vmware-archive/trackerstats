@@ -8,18 +8,7 @@ class ProjectsController < ApplicationController
 
   def show
     @stories  = @project.stories.all
-
-    # Chart 0: Features, Bugs and Chores Total
-    data_table = GoogleVisualr::DataTable.new
-    data_table.new_column('string', 'Story Type')
-    data_table.new_column('number', 'Number')
-    data_table.add_row( [ "Features", stories_with_types_states(@stories, ["feature"] , ["accepted"]).size ] )
-    data_table.add_row( [ "Chores"  , stories_with_types_states(@stories, ["chore"]   , ["accepted"]).size ] )
-    data_table.add_row( [ "Bugs"    , stories_with_types_states(@stories, ["bug"]     , ["accepted"]).size ] )
-
-    opts     = { :width => 1000, :height => 500, :title => 'What have we done?' }
-    @story_type_chart = GoogleVisualr::Interactive::PieChart.new(data_table, opts)
-
+    @story_type_chart = construct_story_type_chart(@stories)
 
     # Chart 1:  When are features discovered?
     features = {}
@@ -133,6 +122,17 @@ class ProjectsController < ApplicationController
 
 
   private
+
+  def construct_story_type_chart(stories)
+    data_table = GoogleVisualr::DataTable.new
+    data_table.new_column('string', 'Story Type')
+    data_table.new_column('number', 'Number')
+    data_table.add_row( [ "Features", stories_with_types_states(stories, ["feature"] , ["accepted"]).size ] )
+    data_table.add_row( [ "Chores"  , stories_with_types_states(stories, ["chore"]   , ["accepted"]).size ] )
+    data_table.add_row( [ "Bugs"    , stories_with_types_states(stories, ["bug"]     , ["accepted"]).size ] )
+    opts     = { :width => 1000, :height => 500, :title => 'What have we done?' }
+    GoogleVisualr::Interactive::PieChart.new(data_table, opts)
+  end
 
   def init_api_token
     PivotalTracker::Client.token = session[:api_token]
