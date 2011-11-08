@@ -42,7 +42,17 @@ describe ProjectsController do
 
       story_type_chart = assigns(:chart_0)
 
+      data_table = story_type_chart.data_table
+
       story_type_chart.options['title'].should == "What have we done?"
+
+      rows = data_table.rows
+      row_names = rows.map { |row| row[0].v }
+      row_names.should =~ ["Bugs", "Chores", "Features"]
+
+      rows.detect {|row| row[0].v == "Features"}[1].v.should == 1
+      rows.detect {|row| row[0].v == "Bugs"}[1].v.should == 1
+      rows.detect {|row| row[0].v == "Chores"}[1].v.should == 0
     end
   end
 end
