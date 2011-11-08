@@ -11,7 +11,7 @@ class ProjectsController < ApplicationController
     @story_type_chart = construct_story_type_chart(@stories)
 
     # Chart 1:  When are features discovered?
-    features = {}
+    features = {1 => { created: 0, accepted:0 }}
     stories_with_types_states(@stories, ["feature"], nil).each do |story|
       week = week?(story.created_at)
       features[week] ||= { created: 0, accepted:0 }
@@ -23,6 +23,7 @@ class ProjectsController < ApplicationController
     data_table.new_column('string', 'Week')
     data_table.new_column('number', 'All Features')
     data_table.new_column('number', 'Accepted Features')
+
     (1..max_value(features)).each do |week|
       values = features[week] || { created: 0, accepted:0 }
       data_table.add_row([week.to_s, values[:created], values[:accepted]])
@@ -47,7 +48,7 @@ class ProjectsController < ApplicationController
 
 
     # Chart 3: What is the distribution of time to acceptance for features?
-    features = {}
+    features = {1 => 0}
     stories_with_types_states(@stories, ["feature"], ["accepted"]).each do |story|
       days = (story.accepted_at - story.created_at).to_i
       features[days] ||= 0
@@ -66,7 +67,7 @@ class ProjectsController < ApplicationController
 
 
     # Chart 4:  When are bugs discovered?
-    bugs = {}
+    bugs = { 1 => { created: 0, accepted:0 }}
     stories_with_types_states(@stories, ["bug"], nil).each do |story|
       week = week?(story.created_at)
       bugs[week] ||= { created: 0, accepted:0 }
@@ -102,7 +103,7 @@ class ProjectsController < ApplicationController
 
 
     # Chart 6: What is the distribution of time to acceptance for bugs?
-    bugs = {}
+    bugs = { 1 => 0 }
     stories_with_types_states(@stories, ["bug"], ["accepted"]).each do |story|
       days = (story.accepted_at - story.created_at).to_i
       bugs[days] ||= 0

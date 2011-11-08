@@ -24,8 +24,18 @@ describe ProjectsController do
   end
 
   describe "#show" do
-    it "should produce a story type chart" do
+    it "should 'work' on a project with no stories" do
+      project = PivotalTracker::Project.new
+      project.id = 12345
+      PivotalTracker::Project.stub(:find) { project }
+      project.stories.stub(:all) { [] }
 
+      get :show, { :id => 12345, :start_date => '2011-01-01' }
+
+      response.should be_success
+    end
+
+    it "should produce a story type chart" do
       project = PivotalTracker::Project.new
       project.id = 12345
       PivotalTracker::Project.stub(:find) { project }
