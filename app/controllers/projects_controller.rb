@@ -13,27 +13,7 @@ class ProjectsController < ApplicationController
     @story_type_chart = chart.story_type(@stories)
 
     # Chart 1:  When are features discovered?
-    features = {1 => { created: 0, accepted:0 }}
-    stories_with_types_states(@stories, ["feature"], nil).each do |story|
-      week = week?(story.created_at)
-      features[week] ||= { created: 0, accepted:0 }
-      features[week][:created]  += 1
-      features[week][:accepted] += 1 if story.current_state == "accepted"
-    end
-
-    data_table = GoogleVisualr::DataTable.new
-    data_table.new_column('string', 'Week')
-    data_table.new_column('number', 'All Features')
-    data_table.new_column('number', 'Accepted Features')
-
-    (1..max_value(features)).each do |week|
-      values = features[week] || { created: 0, accepted:0 }
-      data_table.add_row([week.to_s, values[:created], values[:accepted]])
-    end
-
-    opts     = { :width => 1000, :height => 500, :title => 'When are features discovered?', :hAxis => { :title => 'Week' } }
-    @chart_1 = GoogleVisualr::Interactive::AreaChart.new(data_table, opts)
-
+    @chart_1 = chart.new_features_distribution(@stories)
 
     # Chart 2: How long did it take for features to be accepted in each week?
     data_table = GoogleVisualr::DataTable.new
@@ -147,6 +127,8 @@ class ProjectsController < ApplicationController
 
     @end_date = Date.parse(params[:end_date]) unless params[:end_date].blank?
   end
+
+  #TODO: delete once all chart generation methods have been extracted to Chart.
 
   def week?(date)
     return nil if date.blank?
