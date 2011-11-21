@@ -36,6 +36,7 @@ describe ProjectsController do
     end
 
     it "should produce a story type chart" do
+      pending "Rework this text to test the Chart library instead"
       project = PivotalTracker::Project.new
       project.id = 12345
       PivotalTracker::Project.stub(:find) { project }

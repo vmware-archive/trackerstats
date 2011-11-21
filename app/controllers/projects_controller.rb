@@ -8,7 +8,9 @@ class ProjectsController < ApplicationController
 
   def show
     @stories  = @project.stories.all
-    @story_type_chart = construct_story_type_chart(@stories)
+    chart = Chart.new @start_date, @end_date
+
+    @story_type_chart = chart.story_type(@stories)
 
     # Chart 1:  When are features discovered?
     features = {1 => { created: 0, accepted:0 }}
@@ -121,18 +123,13 @@ class ProjectsController < ApplicationController
     @chart_6 = GoogleVisualr::Interactive::ColumnChart.new(data_table, opts)
   end
 
-
   private
-
-  def construct_story_type_chart(stories)
-    data_table = GoogleVisualr::DataTable.new
-    data_table.new_column('string', 'Story Type')
-    data_table.new_column('number', 'Number')
-    data_table.add_row( [ "Features", stories_with_types_states(stories, ["feature"] , ["accepted"]).size ] )
-    data_table.add_row( [ "Chores"  , stories_with_types_states(stories, ["chore"]   , ["accepted"]).size ] )
-    data_table.add_row( [ "Bugs"    , stories_with_types_states(stories, ["bug"]     , ["accepted"]).size ] )
-    opts     = { :width => 1000, :height => 500, :title => 'What have we done?' }
-    GoogleVisualr::Interactive::PieChart.new(data_table, opts)
+  def stories_with_types_states(stories, types, states)
+    #TODO: delete once all chart generation methods have been extracted to Chart.
+    stories.select do |story|
+      next if story.created_at < self.start_date || (self.end_date && story.created_at > self.end_date)
+      (types.present? ? types.include?(story.story_type) : true) && (states.present? ? states.include?(story.current_state) : true)
+    end
   end
 
   def init_api_token
@@ -149,13 +146,6 @@ class ProjectsController < ApplicationController
     end
 
     @end_date = Date.parse(params[:end_date]) unless params[:end_date].blank?
-  end
-
-  def stories_with_types_states(stories, types, states)
-    stories.select do |story|
-      next if story.created_at < @start_date || (@end_date && story.created_at > @end_date)
-      (types.present? ? types.include?(story.story_type) : true) && (states.present? ? states.include?(story.current_state) : true)
-    end
   end
 
   def week?(date)
