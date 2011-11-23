@@ -75,6 +75,8 @@ class ProjectsController < ApplicationController
     #
     #opts     = { :width => 1000, :height => 500, :title => 'What is the distribution for time to acceptance of bugs?' , :hAxis => { :title => 'Days' }, :vAxis => { :title => 'Number of Bugs' }}
     #@chart_6 = GoogleVisualr::Interactive::ColumnChart.new(data_table, opts)
+
+    @charts = [@chart_1, @chart_2, @chart_3]
   end
 
   private
