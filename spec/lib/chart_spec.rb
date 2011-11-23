@@ -24,9 +24,20 @@ describe Chart do
     @chart.send(method, @sample_stories).data_table.rows
   end
 
+  shared_examples_for "a chart generation method" do
+    it "should allow the chart name to be set" do
+      data_table = @chart.send(chart_type, @sample_stories, "My title")
+      data_table.options["title"].should == "My title"
+    end
+  end
+
   describe "#accepted_story_types" do
+    let(:chart_type) { :accepted_story_types }
+
+    it_should_behave_like "a chart generation method"
+
     it "should produce a story type chart" do
-      rows = get_rows_for_chart(:accepted_story_types)
+      rows = get_rows_for_chart(chart_type)
 
       row_names = rows.map { |row| row[0].v }
       row_names.should =~ ["Bugs", "Chores", "Features"]
@@ -38,8 +49,12 @@ describe Chart do
   end
 
   describe "#new_features_distribution" do
+    let(:chart_type) { :new_features_distribution }
+
+    it_should_behave_like "a chart generation method"
+
     it "should produce a stacked chart of the distribution of new features" do
-      rows = get_rows_for_chart(:new_features_distribution)
+      rows = get_rows_for_chart(chart_type)
 
       rows.detect {|row| row[0].v == "1"}.tap do |row|
         row[1].v.should == 1
@@ -64,9 +79,12 @@ describe Chart do
   end
 
   describe "#accepted_features_per_week" do
-    it "should produce a scatter chart of accepted stories per week" do
-      rows = get_rows_for_chart(:accepted_features_per_week)
+    let(:chart_type) { :accepted_features_per_week }
 
+    it_should_behave_like "a chart generation method"
+
+    it "should produce a scatter chart of accepted stories per week" do
+      rows = get_rows_for_chart(chart_type)
       rows[0][0].v.should == 1
       rows[0][1].v.should == 30
 

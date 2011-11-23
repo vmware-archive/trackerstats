@@ -42,7 +42,7 @@ class Chart
     GoogleVisualr::Interactive::AreaChart.new(data_table, opts)
   end
 
-  def accepted_features_per_week(stories)
+  def accepted_features_per_week(stories, title = "Accepted features per week")
     data_table = GoogleVisualr::DataTable.new
     data_table.new_column('number', 'Week')
     data_table.new_column('number', 'Features')
@@ -52,7 +52,7 @@ class Chart
       data_table.add_row([week, days])
     end
 
-    opts     = { :width => 1000, :height => 500, :title => 'How long did it take for features to be accepted in each week?' , :hAxis => { :title => 'Week', :minValue => 0 }, :vAxis => { :title => 'Number of Days' }}
+    opts     = { :width => 1000, :height => 500, :title => title , :hAxis => { :title => 'Week', :minValue => 0 }, :vAxis => { :title => 'Number of Days' }}
     GoogleVisualr::Interactive::ScatterChart.new(data_table, opts)
   end
 
