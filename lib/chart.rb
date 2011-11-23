@@ -12,9 +12,9 @@ class Chart
     data_table = GoogleVisualr::DataTable.new
     data_table.new_column('string', 'Story Type')
     data_table.new_column('number', 'Number')
-    data_table.add_row( [ "Features", stories_with_types_states(stories, ["feature"] , ["accepted"]).size ] )
-    data_table.add_row( [ "Chores"  , stories_with_types_states(stories, ["chore"]   , ["accepted"]).size ] )
-    data_table.add_row( [ "Bugs"    , stories_with_types_states(stories, ["bug"]     , ["accepted"]).size ] )
+    %W{feature chore bug}.each do |type|
+      data_table.add_row( [ type.pluralize.capitalize, stories_with_types_states(stories, [type] , ["accepted"]).size ] )
+    end
     opts     = { :width => 1000, :height => 500, :title => title }
     GoogleVisualr::Interactive::PieChart.new(data_table, opts)
   end
