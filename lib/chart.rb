@@ -8,7 +8,7 @@ class Chart
 
   #TODO: Let all chart generation methods take in an opts hash
 
-  def story_type(stories, title = "Story Types")
+  def accepted_story_types(stories, title = "Story Types")
     data_table = GoogleVisualr::DataTable.new
     data_table.new_column('string', 'Story Type')
     data_table.new_column('number', 'Number')
@@ -40,6 +40,20 @@ class Chart
 
     opts     = { :width => 1000, :height => 500, :title => title, :hAxis => { :title => 'Week' } }
     GoogleVisualr::Interactive::AreaChart.new(data_table, opts)
+  end
+
+  def accepted_features_per_week(stories)
+    data_table = GoogleVisualr::DataTable.new
+    data_table.new_column('number', 'Week')
+    data_table.new_column('number', 'Features')
+    stories_with_types_states(stories, ["feature"], ["accepted"]).each do |story|
+      week = week?(story.created_at)
+      days = (story.accepted_at - story.created_at).to_i
+      data_table.add_row([week, days])
+    end
+
+    opts     = { :width => 1000, :height => 500, :title => 'How long did it take for features to be accepted in each week?' , :hAxis => { :title => 'Week', :minValue => 0 }, :vAxis => { :title => 'Number of Days' }}
+    GoogleVisualr::Interactive::ScatterChart.new(data_table, opts)
   end
 
   protected

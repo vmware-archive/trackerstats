@@ -10,7 +10,7 @@ class ProjectsController < ApplicationController
     @stories  = @project.stories.all
     chart = Chart.new @start_date, @end_date
 
-    @story_type_chart = chart.story_type(@stories)
+    @story_type_chart = chart.accepted_story_types(@stories)
 
     # Chart 1:  When are features discovered?
     @chart_1 = chart.new_features_distribution(@stories)
