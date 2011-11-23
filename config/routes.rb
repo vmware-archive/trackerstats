@@ -4,7 +4,6 @@ Tracker::Application.routes.draw do
 
   root :to => "application#index"
 
-  resources :sessions, :only => [:new, :create]
   resources :projects, :only => [:index, :show]
 
   # The priority is based upon order of creation:
