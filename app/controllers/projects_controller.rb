@@ -16,17 +16,7 @@ class ProjectsController < ApplicationController
     @chart_1 = chart.new_features_distribution(@stories)
 
     # Chart 2: How long did it take for features to be accepted in each week?
-    data_table = GoogleVisualr::DataTable.new
-    data_table.new_column('number', 'Week')
-    data_table.new_column('number', 'Features')
-    stories_with_types_states(@stories, ["feature"], ["accepted"]).each do |story|
-      week = week?(story.created_at)
-      days = (story.accepted_at - story.created_at).to_i
-      data_table.add_row([week, days])
-    end
-
-    opts     = { :width => 1000, :height => 500, :title => 'How long did it take for features to be accepted in each week?' , :hAxis => { :title => 'Week', :minValue => 0 }, :vAxis => { :title => 'Number of Days' }}
-    @chart_2 = GoogleVisualr::Interactive::ScatterChart.new(data_table, opts)
+    @chart_2 = chart.accepted_features_per_week(@stories)
 
 
     # Chart 3: What is the distribution of time to acceptance for features?
