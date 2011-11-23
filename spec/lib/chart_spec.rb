@@ -85,11 +85,33 @@ describe Chart do
 
     it "should produce a scatter chart of accepted stories per week" do
       rows = get_rows_for_chart(chart_type)
+
+      rows.length.should == 2
+
       rows[0][0].v.should == 1
       rows[0][1].v.should == 30
 
       rows[1][0].v.should == 4
       rows[1][1].v.should == 1
     end
+  end
+
+  describe "#accpetance_time_for_new_features" do
+    let(:chart_type) { :acceptance_time_for_new_features }
+
+    it_should_behave_like "a chart generation method"
+
+    it "should produce a bar chart for the time to acceptance of each feature" do
+      rows = get_rows_for_chart(chart_type)
+
+      rows.length.should == 31
+
+      rows[1][0].v.should == "1"
+      rows[1][1].v.should == 1
+
+      rows[30][0].v.should == "30"
+      rows[30][1].v.should == 1
+    end
+
   end
 end

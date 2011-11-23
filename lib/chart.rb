@@ -56,6 +56,25 @@ class Chart
     GoogleVisualr::Interactive::ScatterChart.new(data_table, opts)
   end
 
+  def acceptance_time_for_new_features(stories, title = "Acceptance time for new features")
+    features = {1 => 0}
+    stories_with_types_states(stories, ["feature"], ["accepted"]).each do |story|
+      days = (story.accepted_at - story.created_at).to_i
+      features[days] ||= 0
+      features[days]  += 1
+    end
+
+    data_table = GoogleVisualr::DataTable.new
+    data_table.new_column('string', 'Days')
+    data_table.new_column('number', 'Number of Features')
+    (0..max_value(features)).each do |days|
+      data_table.add_row([days.to_s, features[days]])
+    end
+
+    opts     = { :width => 1000, :height => 500, :title => title, :hAxis => { :title => 'Days' }, :vAxis => { :title => 'Number of Features' }}
+    GoogleVisualr::Interactive::ColumnChart.new(data_table, opts)
+  end
+
   protected
 
   def stories_with_types_states(stories, types, states)
