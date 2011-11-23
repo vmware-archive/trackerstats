@@ -1,9 +1,11 @@
+- content_for(:page_title) { "Projects - #{@project.name}" }
 = form_for :project, :method => :get do |form|
-  = label_tag :start_date, "Start Date"
-  = text_field_tag :start_date, params[:start_date], :placeholder => "YYYY/MM/DD"
-  = label_tag :end_date, "End Date"
-  = text_field_tag :end_date, params[:end_date], :placeholder => "YYYY/MM/DD"
-  = form.submit "Refresh Charts"
+  %fieldset
+    = label_tag :start_date, "Start Date"
+    = text_field_tag :start_date, params[:start_date], :placeholder => "YYYY/MM/DD"
+    = label_tag :end_date, "End Date"
+    = text_field_tag :end_date, params[:end_date], :placeholder => "YYYY/MM/DD"
+    = form.submit "Refresh Charts", :class => "btn"
 
 #story_type_chart
 = render_chart @story_type_chart, "story_type_chart"
@@ -13,9 +15,9 @@
 = render_chart @chart_2, "chart_2"
 #chart_3
 = render_chart @chart_3, "chart_3"
-#chart_4
-= render_chart @chart_4, "chart_4"
-#chart_5
-= render_chart @chart_5, "chart_5"
-#chart_6
-= render_chart @chart_6, "chart_6"
+-##chart_4
+-#= render_chart @chart_4, "chart_4"
+-##chart_5
+-#= render_chart @chart_5, "chart_5"
+-##chart_6
+-#= render_chart @chart_6, "chart_6"

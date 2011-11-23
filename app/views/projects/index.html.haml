@@ -1,4 +1,6 @@
-%h1 Projects
-%ul
-  - @projects.each do |project|
-    %li= link_to project.name, project_path(project.id)
+- content_for(:page_title) { "Projects" }
+.row
+  .span16
+    %ul
+      - @projects.each do |project|
+        %li= link_to project.name, project_path(project.id)
