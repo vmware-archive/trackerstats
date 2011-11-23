@@ -8,6 +8,8 @@ gem 'pivotal-tracker' , '~> 0.4.1'
 gem 'google_visualr'  , '>= 2.1.0'
 
 gem 'heroku'          , '>= 2.9.0'
+gem 'devise'
+gem 'pg'
 
 # Gems used only for assets and not required
 # in production environments by default.
