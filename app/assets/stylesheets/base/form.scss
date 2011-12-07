@@ -1,0 +1,30 @@
+form {
+  margin: 20px 0;
+}
+
+label {
+  display: block;
+  margin-top: 15px;
+  font-weight: bold;
+}
+
+input {
+  width: 300px;
+  margin : 5px 0;
+  padding: 8px;
+  font-size  : 1.45em;
+  font-weight: bold;
+
+  border: 1px solid #808080;
+  border-radius: 5px;
+  -moz-border-radius: 5px;
+}
+
+.buttons {
+  input[type=submit] {
+    width: auto;
+    font-size  : 1em;
+    text-transform: uppercase;
+    @include box-shadow(1px, 1px, 2px, #AAA);
+  }
+}

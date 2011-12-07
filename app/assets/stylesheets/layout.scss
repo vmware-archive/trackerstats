@@ -1,0 +1,46 @@
+body {
+  background-color: #FAFAFA;
+}
+
+header,
+#content,
+footer {
+  width: 100%;
+  overflow: hidden;
+}
+
+.container {
+  width: 1000px;
+  margin: 0 auto;
+}
+
+header {
+  padding: 10px;
+  background-color: #256188;
+
+  a, a:hover, a:visited {
+    color: #FFFFFF;
+    text-decoration: none;
+  }
+}
+
+#sign_in {
+  width: 100%;
+  overflow: hidden;
+  padding-top: 20px;
+
+  #via_username_password {
+    display: block;
+    float: left;
+    width: 349px;
+    padding: 20px 50px;
+    border-right: 1px solid #808080;
+  }
+
+  #via_api_token {
+    display: block;
+    float: left;
+    width: 350px;
+    padding: 20px 50px;
+  }
+}

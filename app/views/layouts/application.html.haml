@@ -8,9 +8,7 @@
     = csrf_meta_tags
   %body
     = render 'header'
-    .container
-      .content
-        .page-header
-          %h1= yield :page_title
+    #content
+      .container
         = flash[:alert]
         = yield

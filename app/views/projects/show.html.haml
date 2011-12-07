@@ -1,10 +1,11 @@
-- content_for(:page_title) { "Projects - #{@project.name}" }
-.row
+%h2 Projects - #{@project.name}
+
 = form_for :project, :method => :get do |form|
   %fieldset
-    %h3 Select dates
+    %label Select dates
     = text_field_tag :start_date, params[:start_date], :placeholder => "Start YYYY/MM/DD"
     = text_field_tag :end_date, params[:end_date], :placeholder => "End YYYY/MM/DD"
+  %fieldset.buttons
     = form.submit "Refresh Charts", :class => "btn"
 
 #story_type_chart
