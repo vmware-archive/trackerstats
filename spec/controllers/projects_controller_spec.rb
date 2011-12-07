@@ -1,20 +1,13 @@
 require 'spec_helper'
 
 describe ProjectsController do
-
-  before do
-    request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Basic.encode_credentials("pivotallabs", "pivotal8tracker")
-  end
-
   describe "#index" do
-    render_views
-
     it "should find all the projects and display them" do
       project = PivotalTracker::Project.new
       project.name = "Fake Project!!"
       project.id = 12345
-
       PivotalTracker::Project.stub(:all) { [project] }
+
       get :index
 
       response.body.should include("Fake Project!!")
