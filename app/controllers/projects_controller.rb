@@ -8,27 +8,27 @@ class ProjectsController < ApplicationController
 
   def show
     @stories  = @project.stories.all
-    chart = Chart.new @start_date, @end_date
+    chart = Chart.new @stories, @start_date, @end_date
 
-    @story_type_chart = chart.accepted_story_types(@stories)
+    @story_type_chart = chart.accepted_story_types
 
     # Chart 1:  When are features discovered?
-    @chart_1 = chart.discovery_of_new_features(@stories)
+    @chart_1 = chart.discovery_of_new_features
 
     # Chart 2: How long did it take for features to be accepted in each week?
-    @chart_2 = chart.accepted_features_per_week(@stories)
+    @chart_2 = chart.accepted_features_per_week
 
     # Chart 3: What is the distribution of time to acceptance for features?
-    @chart_3 = chart.acceptance_time_for_new_features(@stories)
+    @chart_3 = chart.acceptance_time_for_new_features
 
     # Chart 4: When are bugs discovered?
-    @chart_4 = chart.discovery_of_new_bugs(@stories)
+    @chart_4 = chart.discovery_of_new_bugs
 
     # Chart 5: How long did it take for bugs to be accepted in each week?
-    @chart_5 = chart.accepted_bugs_per_week(@stories)
+    @chart_5 = chart.accepted_bugs_per_week
 
     # Chart 6: What is the distribution of time to acceptance for bugs?
-    @chart_6 = chart.acceptance_time_for_new_bugs(@stories)
+    @chart_6 = chart.acceptance_time_for_new_bugs
 
     @charts = [@chart_1, @chart_2, @chart_3, @chart_4, @chart_5, @chart_6]
   end

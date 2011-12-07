@@ -1,29 +1,28 @@
 class Chart
-  attr_accessor :start_date, :end_date
+  attr_accessor :stories, :start_date, :end_date
 
-  def initialize(start_date, end_date=nil)
+  def initialize(stories, start_date, end_date=nil)
+    @stories    = stories
     @start_date = start_date
     @end_date   = end_date
   end
 
-  #TODO: Let all chart generation methods take in an opts hash
-
-  def accepted_story_types(stories, title = "Story Types")
+  def accepted_story_types(title = "Story Types")
     data_table = GoogleVisualr::DataTable.new
     data_table.new_column('string', 'Story Type')
     data_table.new_column('number', 'Number')
 
     %W{feature chore bug}.each do |type|
-      data_table.add_row( [ type.pluralize.capitalize, stories_with_types_states(stories, [type] , ["accepted"]).size ] )
+      data_table.add_row( [ type.pluralize.capitalize, stories_with_types_states(@stories, [type] , ["accepted"]).size ] )
     end
 
     opts = { :width => 1000, :height => 500, :title => title }
     GoogleVisualr::Interactive::PieChart.new(data_table, opts)
   end
 
-  def discovery_of_new_features(stories, title = "Distribution of New Features")
+  def discovery_of_new_features(title = "Distribution of New Features")
     features = { 1 => { created: 0, accepted:0 } }
-    stories_with_types_states(stories, ["feature"], nil).each do |story|
+    stories_with_types_states(@stories, ["feature"], nil).each do |story|
       week = week?(story.created_at)
       features[week] ||= { created: 0, accepted:0 }
       features[week][:created]  += 1
@@ -44,12 +43,12 @@ class Chart
     GoogleVisualr::Interactive::AreaChart.new(data_table, opts)
   end
 
-  def accepted_features_per_week(stories, title = "Accepted features per week")
+  def accepted_features_per_week(title = "Accepted features per week")
     data_table = GoogleVisualr::DataTable.new
     data_table.new_column('number', 'Week')
     data_table.new_column('number', 'Features')
 
-    stories_with_types_states(stories, ["feature"], ["accepted"]).each do |story|
+    stories_with_types_states(@stories, ["feature"], ["accepted"]).each do |story|
       week = week?(story.created_at)
       days = (story.accepted_at - story.created_at).to_i
       data_table.add_row([week, days])
@@ -59,9 +58,9 @@ class Chart
     GoogleVisualr::Interactive::ScatterChart.new(data_table, opts)
   end
 
-  def acceptance_time_for_new_features(stories, title = "Acceptance time for new features")
+  def acceptance_time_for_new_features(title = "Acceptance time for new features")
     features = {1 => 0}
-    stories_with_types_states(stories, ["feature"], ["accepted"]).each do |story|
+    stories_with_types_states(@stories, ["feature"], ["accepted"]).each do |story|
       days = (story.accepted_at - story.created_at).to_i
       features[days] ||= 0
       features[days]  += 1
@@ -78,9 +77,9 @@ class Chart
     GoogleVisualr::Interactive::ColumnChart.new(data_table, opts)
   end
 
-  def discovery_of_new_bugs(stories, title = "Discovery of new bugs")
+  def discovery_of_new_bugs(title = "Discovery of new bugs")
     bugs = { 1 => { created: 0, accepted:0 }}
-    stories_with_types_states(stories, ["bug"], nil).each do |story|
+    stories_with_types_states(@stories, ["bug"], nil).each do |story|
       week = week?(story.created_at)
       bugs[week] ||= { created: 0, accepted:0 }
       bugs[week][:created]  += 1
@@ -100,11 +99,11 @@ class Chart
     GoogleVisualr::Interactive::AreaChart.new(data_table, opts)
   end
 
-  def accepted_bugs_per_week(stories, title = "Acceptance bugs per week")
+  def accepted_bugs_per_week(title = "Acceptance bugs per week")
     data_table = GoogleVisualr::DataTable.new
     data_table.new_column('number', 'Week')
     data_table.new_column('number', 'Bugs')
-    stories_with_types_states(stories, ["bug"], ["accepted"]).each do |story|
+    stories_with_types_states(@stories, ["bug"], ["accepted"]).each do |story|
       week = week?(story.created_at)
       days = (story.accepted_at - story.created_at).to_i
       data_table.add_row([week, days])
@@ -114,9 +113,9 @@ class Chart
     GoogleVisualr::Interactive::ScatterChart.new(data_table, opts)
   end
 
-  def acceptance_time_for_new_bugs(stories, title = "Acceptance time for new bugs")
+  def acceptance_time_for_new_bugs(title = "Acceptance time for new bugs")
     bugs = { 1 => 0 }
-    stories_with_types_states(stories, ["bug"], ["accepted"]).each do |story|
+    stories_with_types_states(@stories, ["bug"], ["accepted"]).each do |story|
       days = (story.accepted_at - story.created_at).to_i
       bugs[days] ||= 0
       bugs[days]  += 1

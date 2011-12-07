@@ -3,8 +3,8 @@ require 'spec_helper'
 describe Chart do
   shared_examples_for "a chart generation method" do
     it "allows the chart name to be set" do
-      data_table = @chart.send(chart_type, @sample_stories, "My title")
-      data_table.options["title"].should == "My title"
+      data_table = @chart.send(chart_type, "My Title")
+      data_table.options["title"].should == "My Title"
     end
   end
 
@@ -62,7 +62,7 @@ describe Chart do
       PivotalTracker::Story.new(:story_type => story_type, :created_at => DateTime.parse("2011-01-22 00:01:00 Z"), # week 4
                                 :current_state => "started")
     ]
-    @chart = Chart.new(Date.parse('2011-01-01'))
+    @chart = Chart.new(@sample_stories, Date.parse('2011-01-01'))
   end
 
   context "features" do
