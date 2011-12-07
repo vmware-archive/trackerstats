@@ -8,8 +8,6 @@ gem 'jquery-rails'    , '>= 1.0.19'
 gem 'pivotal-tracker' , '>= 0.4.1'
 gem 'google_visualr'  , '>= 2.1.0'
 
-gem 'devise'          , '>= 1.5.2'
-
 # Gems used only for assets and not required
 # in production environments by default.
 group :assets do

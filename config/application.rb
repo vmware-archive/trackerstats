@@ -3,9 +3,6 @@ require File.expand_path('../boot', __FILE__)
 # Require all Rails gems
 require "rails/all"
 
-# Pick the frameworks you want: (excludes ActiveRecord)
-# require "active_record/railtie"
-
 if defined?(Bundler)
   # If you precompile assets before deploying to production, use this line
   Bundler.require(*Rails.groups(:assets => %w(development test)))
@@ -50,7 +47,5 @@ module Tracker
 
     # Version of your assets, change this if you want to expire all your assets
     config.assets.version = '1.0'
-
-    config.assets.initialize_on_precompile = false
   end
 end
