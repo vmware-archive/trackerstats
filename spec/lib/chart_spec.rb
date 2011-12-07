@@ -5,16 +5,20 @@ describe Chart do
 
   before do
     @sample_stories = [
-        PivotalTracker::Story.new(:story_type => "feature", :created_at => DateTime.parse("2011-01-01 00:01:00 Z"),
-                                  :current_state => "accepted", :accepted_at => DateTime.parse("2011-01-31 00:02:00 Z")),
-        PivotalTracker::Story.new(:story_type => "bug", :created_at => DateTime.parse("2011-01-08 00:01:00 Z"),
-                                  :current_state => "accepted", :accepted_at => DateTime.parse("2011-01-15 00:02:00 Z")),
-        PivotalTracker::Story.new(:story_type => "feature", :created_at => DateTime.parse("2011-01-15 00:01:00 Z"),
+        PivotalTracker::Story.new(:story_type => "feature", :created_at => DateTime.parse("2011-01-01 00:01:00 Z"), # week 1
+                                  :current_state => "accepted", :accepted_at => DateTime.parse("2011-01-31 00:02:00 Z")), # week 4
+
+        PivotalTracker::Story.new(:story_type => "feature", :created_at => DateTime.parse("2011-01-15 00:01:00 Z"), # week 3
                                   :current_state => "started"),
-        PivotalTracker::Story.new(:story_type => "feature", :created_at => DateTime.parse("2011-01-22 00:01:00 Z"),
-                                  :current_state => "accepted", :accepted_at => DateTime.parse("2011-01-23 00:02:00 Z")),
-        PivotalTracker::Story.new(:story_type => "chore", :created_at => DateTime.parse("2011-01-29 00:01:00 Z"),
-                                  :current_state => "accepted", :accepted_at => DateTime.parse("2011-01-30 00:02:00 Z"))
+
+        PivotalTracker::Story.new(:story_type => "feature", :created_at => DateTime.parse("2011-01-22 00:01:00 Z"), # week 4
+                                  :current_state => "accepted", :accepted_at => DateTime.parse("2011-01-23 00:02:00 Z")), # week 4
+
+        PivotalTracker::Story.new(:story_type => "bug"    , :created_at => DateTime.parse("2011-01-08 00:01:00 Z"), # week 2
+                                  :current_state => "accepted", :accepted_at => DateTime.parse("2011-01-15 00:02:00 Z")), # week 3
+
+        PivotalTracker::Story.new(:story_type => "chore"  , :created_at => DateTime.parse("2011-01-29 00:01:00 Z"), # week 5
+                                  :current_state => "accepted", :accepted_at => DateTime.parse("2011-01-30 00:02:00 Z")) # week 5
     ]
 
     @chart = Chart.new(Date.parse('2011-01-01'))
@@ -78,6 +82,21 @@ describe Chart do
     end
   end
 
+  describe "#discovery_of_new_bugs" do
+    let(:chart_type) { :discovery_of_new_bugs }
+
+    it_should_behave_like "a chart generation method"
+
+    it "should produce a stacked chart of the distribution of new bugs" do
+      rows = get_rows_for_chart(chart_type)
+
+      rows.detect {|row| row[0].v == "2"}.tap do |row|
+        row[1].v.should == 1
+        row[2].v.should == 1
+      end
+    end
+  end
+
   describe "#accepted_features_per_week" do
     let(:chart_type) { :accepted_features_per_week }
 
@@ -96,7 +115,22 @@ describe Chart do
     end
   end
 
-  describe "#accpetance_time_for_new_features" do
+  describe "#accepted_bugs_per_week" do
+    let(:chart_type) { :accepted_bugs_per_week }
+
+    it_should_behave_like "a chart generation method"
+
+    it "should produce a scatter chart of accepted bugs per week" do
+      rows = get_rows_for_chart(chart_type)
+
+      rows.length.should == 1
+
+      rows[0][0].v.should == 2
+      rows[0][1].v.should == 7
+    end
+  end
+
+  describe "#acceptance_time_for_new_features" do
     let(:chart_type) { :acceptance_time_for_new_features }
 
     it_should_behave_like "a chart generation method"
@@ -112,6 +146,20 @@ describe Chart do
       rows[30][0].v.should == "30"
       rows[30][1].v.should == 1
     end
+  end  
 
+  describe "#acceptance_time_for_new_bugs" do
+    let(:chart_type) { :acceptance_time_for_new_bugs }
+
+    it_should_behave_like "a chart generation method"
+
+    it "should produce a bar chart for the time to acceptance of each feature" do
+      rows = get_rows_for_chart(chart_type)
+
+      rows.length.should == 8
+
+      rows[7][0].v.should == "7"
+      rows[7][1].v.should == 1
+    end
   end
 end

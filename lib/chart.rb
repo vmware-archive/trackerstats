@@ -2,25 +2,29 @@ class Chart
   attr_accessor :start_date, :end_date
 
   def initialize(start_date, end_date=nil)
-    self.start_date = start_date
-    self.end_date = end_date
+    @start_date = start_date
+    @end_date   = end_date
   end
 
   #TODO: Let all chart generation methods take in an opts hash
 
+  # accepted_story_types
   def accepted_story_types(stories, title = "Story Types")
     data_table = GoogleVisualr::DataTable.new
     data_table.new_column('string', 'Story Type')
     data_table.new_column('number', 'Number')
+
     %W{feature chore bug}.each do |type|
       data_table.add_row( [ type.pluralize.capitalize, stories_with_types_states(stories, [type] , ["accepted"]).size ] )
     end
-    opts     = { :width => 1000, :height => 500, :title => title }
+
+    opts = { :width => 1000, :height => 500, :title => title }
     GoogleVisualr::Interactive::PieChart.new(data_table, opts)
   end
 
+  # new_features_discovery
   def new_features_distribution(stories, title = "Distribution of New Features")
-    features = {1 => { created: 0, accepted:0 }}
+    features = { 1 => { created: 0, accepted:0 } }
     stories_with_types_states(stories, ["feature"], nil).each do |story|
       week = week?(story.created_at)
       features[week] ||= { created: 0, accepted:0 }
@@ -38,7 +42,7 @@ class Chart
       data_table.add_row([week.to_s, values[:created], values[:accepted]])
     end
 
-    opts     = { :width => 1000, :height => 500, :title => title, :hAxis => { :title => 'Week' } }
+    opts = { :width => 1000, :height => 500, :title => title, :hAxis => { :title => 'Week' } }
     GoogleVisualr::Interactive::AreaChart.new(data_table, opts)
   end
 
@@ -46,13 +50,14 @@ class Chart
     data_table = GoogleVisualr::DataTable.new
     data_table.new_column('number', 'Week')
     data_table.new_column('number', 'Features')
+
     stories_with_types_states(stories, ["feature"], ["accepted"]).each do |story|
       week = week?(story.created_at)
       days = (story.accepted_at - story.created_at).to_i
       data_table.add_row([week, days])
     end
 
-    opts     = { :width => 1000, :height => 500, :title => title , :hAxis => { :title => 'Week', :minValue => 0 }, :vAxis => { :title => 'Number of Days' }}
+    opts = { :width => 1000, :height => 500, :title => title , :hAxis => { :title => 'Week', :minValue => 0 }, :vAxis => { :title => 'Number of Days' }}
     GoogleVisualr::Interactive::ScatterChart.new(data_table, opts)
   end
 
@@ -71,7 +76,62 @@ class Chart
       data_table.add_row([days.to_s, features[days]])
     end
 
-    opts     = { :width => 1000, :height => 500, :title => title, :hAxis => { :title => 'Days' }, :vAxis => { :title => 'Number of Features' }}
+    opts = { :width => 1000, :height => 500, :title => title, :hAxis => { :title => 'Days' }, :vAxis => { :title => 'Number of Features' }}
+    GoogleVisualr::Interactive::ColumnChart.new(data_table, opts)
+  end
+
+  def discovery_of_new_bugs(stories, title = "Discovery of new bugs")
+    bugs = { 1 => { created: 0, accepted:0 }}
+    stories_with_types_states(stories, ["bug"], nil).each do |story|
+      week = week?(story.created_at)
+      bugs[week] ||= { created: 0, accepted:0 }
+      bugs[week][:created]  += 1
+      bugs[week][:accepted] += 1 if story.current_state == "accepted"
+    end
+
+    data_table = GoogleVisualr::DataTable.new
+    data_table.new_column('string', 'Week')
+    data_table.new_column('number', 'All Bugs')
+    data_table.new_column('number', 'Accepted Bugs')
+    (1..max_value(bugs)).each do |week|
+      values = bugs[week] || { created: 0, accepted:0 }
+      data_table.add_row([week.to_s, values[:created], values[:accepted]])
+    end
+
+    opts = { :width => 1000, :height => 500, :title => title, :hAxis => { :title => 'Week' } }
+    GoogleVisualr::Interactive::AreaChart.new(data_table, opts)
+  end
+
+  def accepted_bugs_per_week(stories, title = "Acceptance bugs per week")
+    data_table = GoogleVisualr::DataTable.new
+    data_table.new_column('number', 'Week')
+    data_table.new_column('number', 'Bugs')
+    stories_with_types_states(stories, ["bug"], ["accepted"]).each do |story|
+      week = week?(story.created_at)
+      days = (story.accepted_at - story.created_at).to_i
+      data_table.add_row([week, days])
+    end
+
+    opts = { :width => 1000, :height => 500, :title => title , :hAxis => { :title => 'Week', :minValue => 0 }, :vAxis => { :title => 'Number of Days' }}
+    GoogleVisualr::Interactive::ScatterChart.new(data_table, opts)
+  end
+
+  def acceptance_time_for_new_bugs(stories, title = "Acceptance time for new bugs")
+    bugs = { 1 => 0 }
+    stories_with_types_states(stories, ["bug"], ["accepted"]).each do |story|
+      days = (story.accepted_at - story.created_at).to_i
+      bugs[days] ||= 0
+      bugs[days]  += 1
+    end
+
+    data_table = GoogleVisualr::DataTable.new
+    data_table.new_column('string', 'Days')
+    data_table.new_column('number', 'Number of Bugs')
+    (0..max_value(bugs)).each do |days|
+      data_table.add_row([days.to_s, bugs[days]])
+    end
+
+    opts     = { :width => 1000, :height => 500, :title => title , :hAxis => { :title => 'Days' }, :vAxis => { :title => 'Number of Bugs' }}
     GoogleVisualr::Interactive::ColumnChart.new(data_table, opts)
   end
 
