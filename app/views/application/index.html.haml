@@ -1,1 +1,19 @@
-= link_to "Login", new_session_path
+#sign_in
+
+  #via_username_password
+    = form_for :session, :url => sessions_path do |form|
+      %fieldset
+        = label_tag "username", "Username or Email"
+        = text_field_tag "username"
+        = label_tag "password"
+        = password_field_tag "password"
+      %fieldset.buttons
+        = form.submit "Retrieve Projects"
+
+  #via_api_token
+    = form_for :session, :url => sessions_path do |form|
+      %fieldset
+        = label_tag "api_token", "API Token"
+        = text_field_tag "api_token"
+      %fieldset.buttons
+        = form.submit "Retrieve Projects"
