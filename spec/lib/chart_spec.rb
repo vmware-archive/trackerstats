@@ -18,7 +18,7 @@ describe Chart do
     end
   end
 
-  shared_examples_for "#discovery_of_new_story_type" do
+  shared_examples_for "story_type_discovery_and_acceptance" do
     it "produces an area chart for the discovery and subsequent acceptance of new story_type" do
       rows = rows_for_chart(chart_type)
 
@@ -29,7 +29,7 @@ describe Chart do
     end
   end
 
-  shared_examples_for "#accepted_stories_per_week" do
+  shared_examples_for "story_type_acceptance_days_by_weeks" do
     it "produces a scatter chart of accepted stories per week" do
       rows = rows_for_chart(chart_type)
 
@@ -40,7 +40,7 @@ describe Chart do
     end
   end
 
-  shared_examples_for "#acceptance_time_for_new_story_type" do
+  shared_examples_for "story_type_acceptance_total_by_days" do
     it "produces a bar chart for the time to acceptance of each story_type" do
       rows = rows_for_chart(chart_type)
 
@@ -80,28 +80,28 @@ describe Chart do
       end
     end
 
-    describe "#discovery_of_new_features" do
-      let(:chart_type) { :discovery_of_new_features }
+    describe "#features_discovery_and_acceptance" do
+      let(:chart_type) { :features_discovery_and_acceptance }
 
       it_should_behave_like "a chart generation method"
 
-      it_should_behave_like "#discovery_of_new_story_type"
+      it_should_behave_like "story_type_discovery_and_acceptance"
     end
 
-    describe "#accepted_features_per_week" do
-      let(:chart_type) { :accepted_features_per_week }
+    describe "#features_acceptance_days_by_weeks" do
+      let(:chart_type) { :features_acceptance_days_by_weeks }
 
       it_should_behave_like "a chart generation method"
 
-      it_should_behave_like "#accepted_stories_per_week"
+      it_should_behave_like "story_type_acceptance_days_by_weeks"
     end
 
-    describe "#acceptance_time_for_new_features" do
-      let(:chart_type) { :acceptance_time_for_new_features }
+    describe "#features_acceptance_total_by_days" do
+      let(:chart_type) { :features_acceptance_total_by_days }
 
       it_should_behave_like "a chart generation method"
 
-      it_should_behave_like "#acceptance_time_for_new_story_type"
+      it_should_behave_like "story_type_acceptance_total_by_days"
     end
   end
 
@@ -120,28 +120,28 @@ describe Chart do
       end
     end
 
-    describe "#discovery_of_new_bugs" do
-      let(:chart_type) { :discovery_of_new_bugs }
+    describe "#bugs_discovery_and_acceptance" do
+      let(:chart_type) { :bugs_discovery_and_acceptance }
 
       it_should_behave_like "a chart generation method"
 
-      it_should_behave_like "#discovery_of_new_story_type"
+      it_should_behave_like "story_type_discovery_and_acceptance"
     end
 
-    describe "#accepted_bugs_per_week" do
-      let(:chart_type) { :accepted_bugs_per_week }
+    describe "#bugs_acceptance_days_by_weeks" do
+      let(:chart_type) { :bugs_acceptance_days_by_weeks }
 
       it_should_behave_like "a chart generation method"
 
-      it_should_behave_like "#accepted_stories_per_week"
+      it_should_behave_like "story_type_acceptance_days_by_weeks"
     end
 
-    describe "#acceptance_time_for_new_bugs" do
-      let(:chart_type) { :acceptance_time_for_new_bugs }
+    describe "#bugs_acceptance_total_by_days" do
+      let(:chart_type) { :bugs_acceptance_total_by_days }
 
       it_should_behave_like "a chart generation method"
 
-      it_should_behave_like "#acceptance_time_for_new_story_type"
+      it_should_behave_like "story_type_acceptance_total_by_days"
     end
   end
 

@@ -13,22 +13,22 @@ class ProjectsController < ApplicationController
     @story_type_chart = chart.accepted_story_types
 
     # Chart 1:  When are features discovered?
-    @chart_1 = chart.discovery_of_new_features
+    @chart_1 = chart.features_discovery_and_acceptance
 
     # Chart 2: How long did it take for features to be accepted in each week?
-    @chart_2 = chart.accepted_features_per_week
+    @chart_2 = chart.features_acceptance_days_by_weeks
 
     # Chart 3: What is the distribution of time to acceptance for features?
-    @chart_3 = chart.acceptance_time_for_new_features
+    @chart_3 = chart.features_acceptance_total_by_days
 
     # Chart 4: When are bugs discovered?
-    @chart_4 = chart.discovery_of_new_bugs
+    @chart_4 = chart.bugs_discovery_and_acceptance
 
     # Chart 5: How long did it take for bugs to be accepted in each week?
-    @chart_5 = chart.accepted_bugs_per_week
+    @chart_5 = chart.bugs_acceptance_days_by_weeks
 
     # Chart 6: What is the distribution of time to acceptance for bugs?
-    @chart_6 = chart.acceptance_time_for_new_bugs
+    @chart_6 = chart.bugs_acceptance_total_by_days
 
     @charts = [@chart_1, @chart_2, @chart_3, @chart_4, @chart_5, @chart_6]
   end
