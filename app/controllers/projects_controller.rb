@@ -13,7 +13,7 @@ class ProjectsController < ApplicationController
     @story_type_chart = chart.accepted_story_types(@stories)
 
     # Chart 1:  When are features discovered?
-    @chart_1 = chart.new_features_distribution(@stories)
+    @chart_1 = chart.discovery_of_new_features(@stories)
 
     # Chart 2: How long did it take for features to be accepted in each week?
     @chart_2 = chart.accepted_features_per_week(@stories)

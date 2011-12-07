@@ -8,7 +8,6 @@ class Chart
 
   #TODO: Let all chart generation methods take in an opts hash
 
-  # accepted_story_types
   def accepted_story_types(stories, title = "Story Types")
     data_table = GoogleVisualr::DataTable.new
     data_table.new_column('string', 'Story Type')
@@ -22,8 +21,7 @@ class Chart
     GoogleVisualr::Interactive::PieChart.new(data_table, opts)
   end
 
-  # new_features_discovery
-  def new_features_distribution(stories, title = "Distribution of New Features")
+  def discovery_of_new_features(stories, title = "Distribution of New Features")
     features = { 1 => { created: 0, accepted:0 } }
     stories_with_types_states(stories, ["feature"], nil).each do |story|
       week = week?(story.created_at)

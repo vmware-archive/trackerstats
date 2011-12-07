@@ -1,165 +1,155 @@
 require 'spec_helper'
 
 describe Chart do
-  #TODO: Add shared examples for chart title and chart options
-
-  before do
-    @sample_stories = [
-        PivotalTracker::Story.new(:story_type => "feature", :created_at => DateTime.parse("2011-01-01 00:01:00 Z"), # week 1
-                                  :current_state => "accepted", :accepted_at => DateTime.parse("2011-01-31 00:02:00 Z")), # week 4
-
-        PivotalTracker::Story.new(:story_type => "feature", :created_at => DateTime.parse("2011-01-15 00:01:00 Z"), # week 3
-                                  :current_state => "started"),
-
-        PivotalTracker::Story.new(:story_type => "feature", :created_at => DateTime.parse("2011-01-22 00:01:00 Z"), # week 4
-                                  :current_state => "accepted", :accepted_at => DateTime.parse("2011-01-23 00:02:00 Z")), # week 4
-
-        PivotalTracker::Story.new(:story_type => "bug"    , :created_at => DateTime.parse("2011-01-08 00:01:00 Z"), # week 2
-                                  :current_state => "accepted", :accepted_at => DateTime.parse("2011-01-15 00:02:00 Z")), # week 3
-
-        PivotalTracker::Story.new(:story_type => "chore"  , :created_at => DateTime.parse("2011-01-29 00:01:00 Z"), # week 5
-                                  :current_state => "accepted", :accepted_at => DateTime.parse("2011-01-30 00:02:00 Z")) # week 5
-    ]
-
-    @chart = Chart.new(Date.parse('2011-01-01'))
-  end
-
-  def get_rows_for_chart(method)
-    @chart.send(method, @sample_stories).data_table.rows
-  end
-
   shared_examples_for "a chart generation method" do
-    it "should allow the chart name to be set" do
+    it "allows the chart name to be set" do
       data_table = @chart.send(chart_type, @sample_stories, "My title")
       data_table.options["title"].should == "My title"
     end
   end
 
-  describe "#accepted_story_types" do
-    let(:chart_type) { :accepted_story_types }
+  shared_examples_for "#accepted_story_types" do
+    it "produces a chart" do
+      rows = rows_for_chart(chart_type)
 
-    it_should_behave_like "a chart generation method"
-
-    it "should produce a story type chart" do
-      rows = get_rows_for_chart(chart_type)
-
-      row_names = rows.map { |row| row[0].v }
-      row_names.should =~ ["Bugs", "Chores", "Features"]
-
-      rows.detect {|row| row[0].v == "Features"}[1].v.should == 2
-      rows.detect {|row| row[0].v == "Bugs"}[1].v.should == 1
-      rows.detect {|row| row[0].v == "Chores"}[1].v.should == 1
+      row_values(rows, 0).should == [ "Features", feature_count]
+      row_values(rows, 1).should == [ "Chores"  , chore_count]
+      row_values(rows, 2).should == [ "Bugs"    , bug_count]
     end
   end
 
-  describe "#new_features_distribution" do
-    let(:chart_type) { :new_features_distribution }
+  shared_examples_for "#discovery_of_new_story_type" do
+    it "produces an area chart for the discovery and subsequent acceptance of new story_type" do
+      rows = rows_for_chart(chart_type)
 
-    it_should_behave_like "a chart generation method"
-
-    it "should produce a stacked chart of the distribution of new features" do
-      rows = get_rows_for_chart(chart_type)
-
-      rows.detect {|row| row[0].v == "1"}.tap do |row|
-        row[1].v.should == 1
-        row[2].v.should == 1
-      end
-
-      rows.detect {|row| row[0].v == "2"}.tap do |row|
-        row[1].v.should == 0
-        row[2].v.should == 0
-      end
-
-      rows.detect {|row| row[0].v == "3"}.tap do |row|
-        row[1].v.should == 1
-        row[2].v.should == 0
-      end
-
-      rows.detect {|row| row[0].v == "4"}.tap do |row|
-        row[1].v.should == 1
-        row[2].v.should == 1
-      end
+      row_values(rows, 0).should == ["1", 1, 1]
+      row_values(rows, 1).should == ["2", 1, 0]
+      row_values(rows, 2).should == ["3", 1, 1]
+      row_values(rows, 3).should == ["4", 1, 0]
     end
   end
 
-  describe "#discovery_of_new_bugs" do
-    let(:chart_type) { :discovery_of_new_bugs }
-
-    it_should_behave_like "a chart generation method"
-
-    it "should produce a stacked chart of the distribution of new bugs" do
-      rows = get_rows_for_chart(chart_type)
-
-      rows.detect {|row| row[0].v == "2"}.tap do |row|
-        row[1].v.should == 1
-        row[2].v.should == 1
-      end
-    end
-  end
-
-  describe "#accepted_features_per_week" do
-    let(:chart_type) { :accepted_features_per_week }
-
-    it_should_behave_like "a chart generation method"
-
-    it "should produce a scatter chart of accepted stories per week" do
-      rows = get_rows_for_chart(chart_type)
+  shared_examples_for "#accepted_stories_per_week" do
+    it "produces a scatter chart of accepted stories per week" do
+      rows = rows_for_chart(chart_type)
 
       rows.length.should == 2
 
-      rows[0][0].v.should == 1
-      rows[0][1].v.should == 30
-
-      rows[1][0].v.should == 4
-      rows[1][1].v.should == 1
+      row_values(rows, 0).should == [1, 27]
+      row_values(rows, 1).should == [3, 6]
     end
   end
 
-  describe "#accepted_bugs_per_week" do
-    let(:chart_type) { :accepted_bugs_per_week }
+  shared_examples_for "#acceptance_time_for_new_story_type" do
+    it "produces a bar chart for the time to acceptance of each story_type" do
+      rows = rows_for_chart(chart_type)
 
-    it_should_behave_like "a chart generation method"
+      rows.length.should == 28
 
-    it "should produce a scatter chart of accepted bugs per week" do
-      rows = get_rows_for_chart(chart_type)
-
-      rows.length.should == 1
-
-      rows[0][0].v.should == 2
-      rows[0][1].v.should == 7
+      row_values(rows, 6).should  == ["6", 1]
+      row_values(rows, 27).should == ["27", 1]
     end
   end
 
-  describe "#acceptance_time_for_new_features" do
-    let(:chart_type) { :acceptance_time_for_new_features }
+  before do
+    @sample_stories = [
+      PivotalTracker::Story.new(:story_type => story_type, :created_at => DateTime.parse("2011-01-01 00:01:00 Z"), # week 1
+                                :current_state => "accepted", :accepted_at => DateTime.parse("2011-01-28 00:02:00 Z")), # week 4
+      PivotalTracker::Story.new(:story_type => story_type, :created_at => DateTime.parse("2011-01-08 00:01:00 Z"), # week 2
+                                :current_state => "started"),
+      PivotalTracker::Story.new(:story_type => story_type, :created_at => DateTime.parse("2011-01-15 00:01:00 Z"), # week 3
+                                :current_state => "accepted", :accepted_at => DateTime.parse("2011-01-21 00:02:00 Z")), # week 3
+      PivotalTracker::Story.new(:story_type => story_type, :created_at => DateTime.parse("2011-01-22 00:01:00 Z"), # week 4
+                                :current_state => "started")
+    ]
+    @chart = Chart.new(Date.parse('2011-01-01'))
+  end
 
-    it_should_behave_like "a chart generation method"
+  context "features" do
+    let(:story_type) { "feature" }
 
-    it "should produce a bar chart for the time to acceptance of each feature" do
-      rows = get_rows_for_chart(chart_type)
+    describe "#accepted_story_types" do
+      let(:chart_type) { :accepted_story_types }
 
-      rows.length.should == 31
+      it_should_behave_like "a chart generation method"
 
-      rows[1][0].v.should == "1"
-      rows[1][1].v.should == 1
-
-      rows[30][0].v.should == "30"
-      rows[30][1].v.should == 1
+      it_should_behave_like "#accepted_story_types" do
+        let(:feature_count) { 2 }
+        let(:chore_count)   { 0 }
+        let(:bug_count)     { 0 }
+      end
     end
-  end  
 
-  describe "#acceptance_time_for_new_bugs" do
-    let(:chart_type) { :acceptance_time_for_new_bugs }
+    describe "#discovery_of_new_features" do
+      let(:chart_type) { :discovery_of_new_features }
 
-    it_should_behave_like "a chart generation method"
+      it_should_behave_like "a chart generation method"
 
-    it "should produce a bar chart for the time to acceptance of each feature" do
-      rows = get_rows_for_chart(chart_type)
-
-      rows.length.should == 8
-
-      rows[7][0].v.should == "7"
-      rows[7][1].v.should == 1
+      it_should_behave_like "#discovery_of_new_story_type"
     end
+
+    describe "#accepted_features_per_week" do
+      let(:chart_type) { :accepted_features_per_week }
+
+      it_should_behave_like "a chart generation method"
+
+      it_should_behave_like "#accepted_stories_per_week"
+    end
+
+    describe "#acceptance_time_for_new_features" do
+      let(:chart_type) { :acceptance_time_for_new_features }
+
+      it_should_behave_like "a chart generation method"
+
+      it_should_behave_like "#acceptance_time_for_new_story_type"
+    end
+  end
+
+  context "bugs" do
+    let(:story_type) { "bug" }
+
+    describe "#accepted_story_types" do
+      let(:chart_type) { :accepted_story_types }
+
+      it_should_behave_like "a chart generation method"
+
+      it_should_behave_like "#accepted_story_types" do
+        let(:feature_count) { 0 }
+        let(:chore_count)   { 0 }
+        let(:bug_count)     { 2 }
+      end
+    end
+
+    describe "#discovery_of_new_bugs" do
+      let(:chart_type) { :discovery_of_new_bugs }
+
+      it_should_behave_like "a chart generation method"
+
+      it_should_behave_like "#discovery_of_new_story_type"
+    end
+
+    describe "#accepted_bugs_per_week" do
+      let(:chart_type) { :accepted_bugs_per_week }
+
+      it_should_behave_like "a chart generation method"
+
+      it_should_behave_like "#accepted_stories_per_week"
+    end
+
+    describe "#acceptance_time_for_new_bugs" do
+      let(:chart_type) { :acceptance_time_for_new_bugs }
+
+      it_should_behave_like "a chart generation method"
+
+      it_should_behave_like "#acceptance_time_for_new_story_type"
+    end
+  end
+
+  def rows_for_chart(method)
+    @chart.send(method, @sample_stories).data_table.rows
+  end
+
+  def row_values(rows, num)
+    rows[num].map { |c| c.v }
   end
 end
