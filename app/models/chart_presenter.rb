@@ -1,4 +1,4 @@
-class Chart
+class ChartPresenter
 
   attr_accessor :stories, :start_date, :end_date
 
