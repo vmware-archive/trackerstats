@@ -16,4 +16,8 @@ test:
   host: localhost
 
 production:
+  adapter: postgresql
   database: trackerstats_production
+  username: pivotal
+  password:
+  host: localhost
