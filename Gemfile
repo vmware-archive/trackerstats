@@ -28,4 +28,5 @@ end
 
 group :test, :development do
   gem 'rspec-rails', '2.7.0'
+  gem 'evergreen', require: 'evergreen/rails'
 end
