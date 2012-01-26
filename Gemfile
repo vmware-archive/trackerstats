@@ -27,7 +27,7 @@ group :test do
 end
 
 group :test, :development do
-  gem 'rspec-rails', '2.7.0'
+  gem 'rspec-rails', '>= 2.7.0'
   gem 'evergreen', require: 'evergreen/rails'
   gem 'ruby-debug19'
 end
