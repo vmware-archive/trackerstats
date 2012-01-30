@@ -32,7 +32,10 @@ class ProjectsController < ApplicationController
     # Chart 6: What is the distribution of time to acceptance for bugs?
     @chart_6 = chart_presenter.bugs_acceptance_total_by_days
 
-    @charts = [@chart_1, @chart_2, @chart_3, @chart_4, @chart_5, @chart_6]
+    # Chart 7: Velocity
+    @chart_7 = chart_presenter.velocity
+
+    @charts = [@chart_1, @chart_2, @chart_3, @chart_4, @chart_5, @chart_6, @chart_7]
   end
 
   private

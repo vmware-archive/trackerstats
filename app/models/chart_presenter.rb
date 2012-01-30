@@ -122,6 +122,33 @@ class ChartPresenter
     end
   end
 
+  def velocity
+
+    data_table = GoogleVisualr::DataTable.new
+    data_table.new_column("string", "Iteration")
+    data_table.new_column("number", "Points accepted")
+
+    @iterations.each do |iteration|
+      next if iteration.number < @start_iteration or iteration.number > @end_iteration
+
+      points = 0
+      iteration.stories.each do |story|
+        points += story.estimate if story.estimate and story.current_state == "accepted"
+      end
+
+      data_table.add_row([iteration.number.to_s, points])
+    end
+
+    opts = {
+        :width => 1000,
+        :height => 500,
+        :title => "Velocity",
+        :hAxis => { :title => 'Iterations' },
+        :vAxis => { :title => "Points accepted" }}
+
+    GoogleVisualr::Interactive::LineChart.new(data_table, opts)
+  end
+
   protected
 
   def stories_with_types_states(types, states)

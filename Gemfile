@@ -30,4 +30,5 @@ group :test, :development do
   gem 'rspec-rails', '>= 2.7.0'
   gem 'evergreen', require: 'evergreen/rails'
   gem 'ruby-debug19'
+  gem 'factory_girl_rails'
 end
