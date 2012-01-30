@@ -106,7 +106,7 @@ describe ChartPresenter do
       rows.length.should == 2
 
       row_values(rows, 0).should == [1, 25]
-      row_values(rows, 1).should == [3, 6]
+      row_values(rows, 1).should == [2, 6]
     end
   end
 

@@ -68,13 +68,10 @@ class ChartPresenter
       data_table.new_column("number", "Iteration")
       data_table.new_column("number", "#{type_titleized}")
 
-      @iterations.each do |iteration|
-        iteration.stories.each do |story|
-          next if story.story_type != type
-          next if story.current_state != "accepted"
-          days = (story.accepted_at - story.created_at).to_i
-          data_table.add_row([iteration.number, days])
-        end
+      stories_with_types_states([type], ["accepted"]).each do |story|
+        nr = iteration_number(story.created_at)
+        days = (story.accepted_at - story.created_at).to_i
+        data_table.add_row([nr, days])
       end
 
       opts = {
@@ -83,7 +80,9 @@ class ChartPresenter
           :title => title ,
           :hAxis => {
               :title => 'Iteration',
-              :minValue => 0 },
+              :minValue => @start_iteration,
+              :maxValue => @end_iteration,
+          },
           :vAxis => {
               :title => 'Number of Days'}}
       GoogleVisualr::Interactive::ScatterChart.new(data_table, opts)
