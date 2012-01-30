@@ -94,21 +94,29 @@ class ChartPresenter
     # bugs_acceptance_total_by_days
     define_method "#{type_pluralized}_acceptance_total_by_days" do |title="#{type_titleized} Duration to Acceptance By Days"|
 
-      stories = {1 => 0}
+      stories = {}
+      max_days = 0
       stories_with_types_states([type], ["accepted"]).each do |story|
         days = (story.accepted_at - story.created_at).to_i
         stories[days] ||= 0
         stories[days]  += 1
+        max_days = days if max_days < days
       end
 
       data_table = GoogleVisualr::DataTable.new
       data_table.new_column("string", "Days")
       data_table.new_column("number", "Number of #{type_titleized}")
-      (0..max_value(stories)).each do |days|
+      (0..max_days).each do |days|
         data_table.add_row([days.to_s, stories[days]])
       end
 
-      opts = { :width => 1000, :height => 500, :title => title, :hAxis => { :title => 'Days' }, :vAxis => { :title => "Number of #{type_titleized}" }}
+      opts = {
+          :width => 1000,
+          :height => 500,
+          :title => title,
+          :hAxis => { :title => 'Days' },
+          :vAxis => { :title => "Number of #{type_titleized}" }}
+
       GoogleVisualr::Interactive::ColumnChart.new(data_table, opts)
 
     end
@@ -129,10 +137,6 @@ class ChartPresenter
       return it.number if it.start <= date && it.finish > date
     end
     return @iterations.last.number
-  end
-
-  def max_value(obj)
-    obj.to_a.sort { |x,y| x[0] <=> y[0] }.last[0]
   end
 
 end
