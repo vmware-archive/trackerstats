@@ -131,10 +131,6 @@ class ChartPresenter
     return @iterations.last.number
   end
 
-  def min_value(obj)
-    obj.to_a.sort { |x,y| x[0] <=> y[0] }.first[0]
-  end
-
   def max_value(obj)
     obj.to_a.sort { |x,y| x[0] <=> y[0] }.last[0]
   end
