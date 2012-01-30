@@ -39,6 +39,7 @@ class ProjectsController < ApplicationController
 
   def init_api_token
     PivotalTracker::Client.token = session[:api_token]
+    PivotalTracker::Client.use_ssl = true
   end
 
   def init_project_and_date_range

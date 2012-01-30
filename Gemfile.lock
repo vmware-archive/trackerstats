@@ -1,3 +1,17 @@
+GIT
+  remote: git://github.com/jsmestad/pivotal-tracker.git
+  revision: ce97c2ae5bb9c6f810d920558e968e1fcc411242
+  ref: ce97c2ae5bb9c6f810d920558e968e1fcc411242
+  specs:
+    pivotal-tracker (0.4.1)
+      builder
+      builder
+      happymapper (>= 0.3.2)
+      happymapper (>= 0.3.2)
+      nokogiri (>= 1.4.3)
+      rest-client (~> 1.6.0)
+      rest-client (~> 1.6.0)
+
 GEM
   remote: http://rubygems.org/
   specs:
@@ -30,7 +44,7 @@ GEM
     activesupport (3.1.3)
       multi_json (~> 1.0)
     addressable (2.2.6)
-    ansi (1.4.1)
+    ansi (1.4.2)
     archive-tar-minitar (0.5.2)
     arel (2.2.1)
     builder (3.0.0)
@@ -66,7 +80,7 @@ GEM
     haml (3.1.4)
     happymapper (0.4.0)
       libxml-ruby (~> 2.0)
-    heroku (2.19.0)
+    heroku (2.19.1)
       launchy (>= 0.3.2)
       rest-client (~> 1.6.1)
       rubyzip
@@ -91,15 +105,6 @@ GEM
     multi_json (1.0.4)
     nokogiri (1.5.0)
     pg (0.12.2)
-    pivotal-tracker (0.4.1)
-      builder
-      builder
-      happymapper (>= 0.3.2)
-      happymapper (>= 0.3.2)
-      nokogiri (>= 1.4.3)
-      nokogiri (~> 1.4)
-      rest-client (~> 1.6.0)
-      rest-client (~> 1.6.0)
     pivotal_git_scripts (1.1.0)
     polyglot (0.3.3)
     rack (1.3.6)
@@ -163,7 +168,7 @@ GEM
       railties (~> 3.1.0)
       sass (~> 3.1.10)
       tilt (~> 1.3.2)
-    selenium-webdriver (2.17.0)
+    selenium-webdriver (2.18.0)
       childprocess (>= 0.2.5)
       ffi (~> 1.0.9)
       multi_json (~> 1.0.4)
@@ -185,7 +190,7 @@ GEM
     turn (0.8.3)
       ansi
     tzinfo (0.3.31)
-    uglifier (1.2.2)
+    uglifier (1.2.3)
       execjs (>= 0.3.0)
       multi_json (>= 1.0.2)
     xpath (0.1.4)
@@ -202,7 +207,7 @@ DEPENDENCIES
   heroku (>= 2.9.0)
   jquery-rails (>= 1.0.19)
   pg (>= 0.11.0)
-  pivotal-tracker (>= 0.4.1)
+  pivotal-tracker!
   pivotal_git_scripts
   rails (= 3.1.3)
   rspec-rails (>= 2.7.0)
