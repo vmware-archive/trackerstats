@@ -99,8 +99,8 @@ describe ChartPresenter do
     end
   end
 
-  shared_examples_for "story_type_acceptance_days_by_weeks" do
-    it "produces a scatter chart of accepted stories per week" do
+  shared_examples_for "story_type_acceptance_days_by_iteration" do
+    it "produces a scatter chart of accepted stories per iteration" do
       rows = rows_for_chart(chart_type)
 
       rows.length.should == 2
@@ -144,12 +144,12 @@ describe ChartPresenter do
       it_should_behave_like "story_type_discovery_and_acceptance"
     end
 
-    describe "#features_acceptance_days_by_weeks" do
-      let(:chart_type) { :features_acceptance_days_by_weeks }
+    describe "#features_acceptance_days_by_iteration" do
+      let(:chart_type) { :features_acceptance_days_by_iteration }
 
       it_should_behave_like "a chart generation method"
 
-      it_should_behave_like "story_type_acceptance_days_by_weeks"
+      it_should_behave_like "story_type_acceptance_days_by_iteration"
     end
 
     describe "#features_acceptance_total_by_days" do
@@ -184,12 +184,12 @@ describe ChartPresenter do
       it_should_behave_like "story_type_discovery_and_acceptance"
     end
 
-    describe "#bugs_acceptance_days_by_weeks" do
-      let(:chart_type) { :bugs_acceptance_days_by_weeks }
+    describe "#bugs_acceptance_days_by_iteration" do
+      let(:chart_type) { :bugs_acceptance_days_by_iteration }
 
       it_should_behave_like "a chart generation method"
 
-      it_should_behave_like "story_type_acceptance_days_by_weeks"
+      it_should_behave_like "story_type_acceptance_days_by_iteration"
     end
 
     describe "#bugs_acceptance_total_by_days" do

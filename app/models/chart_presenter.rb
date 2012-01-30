@@ -62,7 +62,7 @@ class ChartPresenter
     # Methods:
     # features_acceptance_days_by_weeks
     # bugs_acceptance_days_by_weeks
-    define_method "#{type_pluralized}_acceptance_days_by_weeks" do |title="#{type_titleized} Duration to Acceptance Per Iteration"|
+    define_method "#{type_pluralized}_acceptance_days_by_iteration" do |title="#{type_titleized} Duration to Acceptance Per Iteration"|
 
       data_table = GoogleVisualr::DataTable.new
       data_table.new_column("number", "Iteration")

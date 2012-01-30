@@ -18,7 +18,7 @@ class ProjectsController < ApplicationController
     @chart_1 = chart_presenter.features_discovery_and_acceptance
 
     # Chart 2: How long did it take for features to be accepted in each week?
-    @chart_2 = chart_presenter.features_acceptance_days_by_weeks
+    @chart_2 = chart_presenter.features_acceptance_days_by_iteration
 
     # Chart 3: What is the distribution of time to acceptance for features?
     @chart_3 = chart_presenter.features_acceptance_total_by_days
@@ -27,7 +27,7 @@ class ProjectsController < ApplicationController
     @chart_4 = chart_presenter.bugs_discovery_and_acceptance
 
     # Chart 5: How long did it take for bugs to be accepted in each week?
-    @chart_5 = chart_presenter.bugs_acceptance_days_by_weeks
+    @chart_5 = chart_presenter.bugs_acceptance_days_by_iteration
 
     # Chart 6: What is the distribution of time to acceptance for bugs?
     @chart_6 = chart_presenter.bugs_acceptance_total_by_days
