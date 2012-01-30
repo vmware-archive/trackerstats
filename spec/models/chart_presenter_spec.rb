@@ -1,58 +1,71 @@
 require 'spec_helper'
 
 describe ChartPresenter do
-  before do
-    @project = double("project")
 
+  before do
     @sample_stories = [
       double(
           :story_type => story_type,
-          :created_at => DateTime.parse("2011-01-03 00:01:00 Z"), # week 1
+          :created_at => DateTime.parse("2011-01-03 00:01:00 Z"), # iteration 1
           :current_state => "accepted",
-          :accepted_at => DateTime.parse("2011-01-28 00:02:00 Z")), # week 4
+          :accepted_at => DateTime.parse("2011-01-28 00:02:00 Z")), # iteration 4
       double(
           :story_type => story_type,
-          :created_at => DateTime.parse("2011-01-08 00:01:00 Z"), # week 2
+          :created_at => DateTime.parse("2011-01-08 00:01:00 Z"),   # iteration 1
           :current_state => "started"),
       double(
           :story_type => story_type,
-          :created_at => DateTime.parse("2011-01-15 00:01:00 Z"), # week 3
+          :created_at => DateTime.parse("2011-01-15 00:01:00 Z"),   # iteration 2
           :current_state => "accepted",
-          :accepted_at => DateTime.parse("2011-01-21 00:02:00 Z")), # week 3
+          :accepted_at => DateTime.parse("2011-01-21 00:02:00 Z")), # iteration 3
       double(
           :story_type => story_type,
-          :created_at => DateTime.parse("2011-01-22 00:01:00 Z"), # week 4
-          :current_state => "started")
+          :created_at => DateTime.parse("2011-01-22 00:01:00 Z"),   # iteration 3
+          :current_state => "started"),
+    # ICEBOX
+      double(
+          :story_type => story_type,
+          :created_at => DateTime.parse("2010-01-22 00:01:00 Z"), # iteration 0
+          :current_state => "unscheduled"),
+      double(
+          :story_type => story_type,
+          :created_at => DateTime.parse("2011-01-22 00:01:00 Z"), # iteration 3
+          :current_state => "unscheduled")
     ]
 
     stories = double("project stories")
     stories.stub(:all).and_return(@sample_stories)
-
-    @project.stub(:stories).and_return(stories)
 
     iterations = double("iterations")
     iterations.stub(:all).and_return([
       double(
         :number => 1,
         :start => Date.parse("2011-01-03"),
-        :finish => Date.parse("2011-01-10")),
+        :finish => Date.parse("2011-01-10"),
+        :stories => []),
       double(
         :number => 2,
         :start => Date.parse("2011-01-10"),
-        :finish => Date.parse("2011-01-17")),
+        :finish => Date.parse("2011-01-17"),
+        :stories => []),
       double(
         :number => 3,
         :start => Date.parse("2011-01-17"),
-        :finish => Date.parse("2011-01-24")),
+        :finish => Date.parse("2011-01-24"),
+        :stories => []),
       double(
         :number => 4,
         :start => Date.parse("2011-01-24"),
-        :finish => Date.parse("2011-01-31")),
+        :finish => Date.parse("2011-01-31"),
+        :stories => []),
     ])
 
-    @project.stub(:iterations).and_return(iterations)
+    iterations.all[0].stories << @sample_stories[0]
+    iterations.all[1].stories << @sample_stories[1]
+    iterations.all[2].stories << @sample_stories[2]
+    iterations.all[3].stories << @sample_stories[3]
 
-    @chart = ChartPresenter.new(@sample_stories, Date.parse('2011-01-01'))
+    @chart = ChartPresenter.new(iterations.all, @sample_stories, Date.parse("2010-01-01"))
   end
 
   shared_examples_for "a chart generation method" do
@@ -76,10 +89,13 @@ describe ChartPresenter do
     it "produces an area chart for the discovery and subsequent acceptance of new story_type" do
       rows = rows_for_chart(chart_type)
 
-      row_values(rows, 0).should == ["1", 1, 1]
-      row_values(rows, 1).should == ["2", 1, 0]
-      row_values(rows, 2).should == ["3", 1, 1]
-      row_values(rows, 3).should == ["4", 1, 0]
+      rows.length.should == 5
+
+      row_values(rows, 0).should == ["0", 1, 0]
+      row_values(rows, 1).should == ["1", 2, 1]
+      row_values(rows, 2).should == ["2", 1, 1]
+      row_values(rows, 3).should == ["3", 2, 0]
+      row_values(rows, 4).should == ["4", 0, 0]
     end
   end
 
@@ -182,54 +198,6 @@ describe ChartPresenter do
       it_should_behave_like "a chart generation method"
 
       it_should_behave_like "story_type_acceptance_total_by_days"
-    end
-  end
-
-
-  context "use iteration number" do
-    let(:story_type) {"feature"}
-    before do
-      @project = double("project")
-      stories = double("project stories")
-      stories.stub(:all).and_return(@sample_stories)
-
-      @project.stub(:stories).and_return(stories)
-
-      it1 = double("it1")
-      it1.stub(:start).and_return(Date.parse("2011-01-03"))
-      it1.stub(:finish).and_return(Date.parse("2011-01-10"))
-      it1.stub(:number).and_return(1)
-
-      it2 = double("it2")
-      it2.stub(:start).and_return(Date.parse("2011-01-10"))
-      it2.stub(:finish).and_return(Date.parse("2011-01-17"))
-      it2.stub(:number).and_return(2)
-
-      it3 = double("it3")
-      it3.stub(:start).and_return(Date.parse("2011-01-17"))
-      it3.stub(:finish).and_return(Date.parse("2011-01-24"))
-      it3.stub(:number).and_return(3)
-
-      it4 = double("it4")
-      it4.stub(:start).and_return(Date.parse("2011-01-24"))
-      it4.stub(:finish).and_return(Date.parse("2011-01-31"))
-      it4.stub(:number).and_return(3)
-
-      iterations = double("iterations")
-      iterations.stub(:all).and_return([it1, it2, it3, it4])
-
-      @project.stub(:iterations).and_return(iterations)
-    end
-
-    describe "test" do
-      it "project should have iterations" do
-        @project.iterations.should_not be_nil
-        @project.iterations.should respond_to(:all)
-        @project.iterations.all.count.should  == 4
-
-        @project.stories.should respond_to(:all)
-        @project.stories.all.count.should == 4
-      end
     end
   end
 

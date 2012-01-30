@@ -21,6 +21,7 @@ describe ProjectsController do
       project.id = 12345
       PivotalTracker::Project.stub(:find) { project }
       project.stories.stub(:all) { [] }
+      project.iterations.stub(:all) { [] }
 
       get :show, { :id => 12345, :start_date => '2011-01-01' }
 

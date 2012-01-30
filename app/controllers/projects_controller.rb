@@ -7,8 +7,10 @@ class ProjectsController < ApplicationController
   end
 
   def show
-    @stories  = @project.stories.all
-    chart_presenter = ChartPresenter.new @stories, @start_date, @end_date
+    @stories = @project.stories.all
+    @iterations = @project.iterations.all
+
+    chart_presenter = ChartPresenter.new(@iterations, @stories, @start_date, @end_date)
 
     @story_type_chart = chart_presenter.accepted_story_types
 
