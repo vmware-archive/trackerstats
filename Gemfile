@@ -5,7 +5,7 @@ gem 'pg'              , '>= 0.11.0'
 gem 'haml'            , '>= 3.1.4'
 gem 'jquery-rails'    , '>= 1.0.19'
 
-gem 'pivotal-tracker' , git: "git://github.com/jsmestad/pivotal-tracker.git", ref: "ce97c2ae5bb9c6f810d920558e968e1fcc411242"
+gem 'pivotal-tracker' , git: "git://github.com/tomazy/pivotal-tracker.git", ref: "cab79b145f4e876781d08df476f78abb4871f8d3"
 gem 'google_visualr'  , '>= 2.1.0'
 
 # Gems used only for assets and not required

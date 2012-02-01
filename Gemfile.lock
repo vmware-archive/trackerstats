@@ -1,7 +1,7 @@
 GIT
-  remote: git://github.com/jsmestad/pivotal-tracker.git
-  revision: ce97c2ae5bb9c6f810d920558e968e1fcc411242
-  ref: ce97c2ae5bb9c6f810d920558e968e1fcc411242
+  remote: git://github.com/tomazy/pivotal-tracker.git
+  revision: cab79b145f4e876781d08df476f78abb4871f8d3
+  ref: cab79b145f4e876781d08df476f78abb4871f8d3
   specs:
     pivotal-tracker (0.4.1)
       builder
