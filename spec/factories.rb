@@ -1,8 +1,11 @@
 FactoryGirl.define do
 
-  factory :project, class: PivotalTracker::Project
+  factory :project, class: Project do
+    sequence(:id, 1)
+    name { "Project-#{id}" }
+  end
 
-  factory :iteration, class: PivotalTracker::Iteration do
+  factory :iteration, class: Iteration do
     sequence(:number, 1)
     sequence(:start, 0) { |n| n.weeks.from_now.beginning_of_day }
     finish { start + 1.week }
@@ -17,7 +20,7 @@ FactoryGirl.define do
 
   end
 
-  factory :story, class: PivotalTracker::Story do
+  factory :story, class: Story do
     ignore do
       iteration FactoryGirl.build :iteration,
                                   number: 1,

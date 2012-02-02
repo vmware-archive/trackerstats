@@ -3,12 +3,12 @@ class ProjectsController < ApplicationController
   before_filter :init_project_and_date_range, :only => :show
 
   def index
-    @projects = PivotalTracker::Project.all
+    @projects = Project.all
   end
 
   def show
-    @stories = @project.stories.all
-    @iterations = @project.iterations.all
+    @stories = @project.stories
+    @iterations = @project.iterations
 
     chart_presenter = ChartPresenter.new(@iterations, @stories, @start_date, @end_date)
 
@@ -41,15 +41,14 @@ class ProjectsController < ApplicationController
   private
 
   def init_api_token
-    PivotalTracker::Client.token = session[:api_token]
-    PivotalTracker::Client.use_ssl = true
+    TrackerApi.token = session[:api_token]
   end
 
   def init_project_and_date_range
-    @project  = PivotalTracker::Project.find(params[:id].to_i)
+    @project  = Project.find(params[:id].to_i)
 
     if params[:start_date].blank?
-      @start_date = @project.iterations.all.detect { |iteration| iteration.number == 1 }.start
+      @start_date = @project.iterations.detect { |iteration| iteration.number == 1 }.start
     else
       @start_date = Date.parse(params[:start_date])
     end

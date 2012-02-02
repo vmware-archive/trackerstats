@@ -14,7 +14,10 @@ describe SessionsController do
       let(:params)   { { username: username, password: password } }
 
       it "sessionizes API Token" do
-        PivotalTracker::Client.should_receive(:token).with(username, password).and_return(api_token)
+        stub_request(:post, 'https://www.pivotaltracker.com/services/v3/tokens/active')
+            .with(body: { username: username, password: password })
+            .to_return(body: "<guid>#{api_token}</guid>")
+
         do_request
 
         session[:api_token].should == api_token

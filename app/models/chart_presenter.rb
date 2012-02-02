@@ -3,8 +3,8 @@ class ChartPresenter
   attr_accessor :stories, :start_date, :end_date
 
   def initialize(iterations, stories, start_date, end_date = nil)
-    @start_date = start_date
-    @end_date = end_date || DateTime.now
+    @start_date = start_date.to_datetime
+    @end_date = end_date ? end_date.to_datetime : DateTime.now
 
     @iterations = iterations
     @stories = stories
@@ -70,7 +70,7 @@ class ChartPresenter
 
       stories_with_types_states([type], ["accepted"]).each do |story|
         nr = iteration_number(story.created_at)
-        days = (story.accepted_at - story.created_at).to_i
+        days = interval_in_days story.accepted_at, story.created_at
         data_table.add_row([nr, days])
       end
 
@@ -97,7 +97,7 @@ class ChartPresenter
       stories = {}
       max_days = 0
       stories_with_types_states([type], ["accepted"]).each do |story|
-        days = (story.accepted_at - story.created_at).to_i
+        days = interval_in_days story.accepted_at, story.created_at
         stories[days] ||= 0
         stories[days]  += 1
         max_days = days if max_days < days
@@ -123,7 +123,6 @@ class ChartPresenter
   end
 
   def velocity
-
     data_table = GoogleVisualr::DataTable.new
     data_table.new_column("string", "Iteration")
     data_table.new_column("number", "Points accepted")
@@ -133,7 +132,7 @@ class ChartPresenter
 
       points = 0
       iteration.stories.each do |story|
-        points += story.estimate if story.estimate and story.current_state == "accepted"
+        points += story.estimate if story.respond_to?(:estimate) and story.current_state == "accepted"
       end
 
       data_table.add_row([iteration.number.to_s, points])
@@ -164,6 +163,10 @@ class ChartPresenter
       return it.number if it.start <= date && it.finish > date
     end
     return @iterations.last.number
+  end
+
+  def interval_in_days(time1, time2)
+    (time1.to_datetime - time2.to_datetime).to_i.abs
   end
 
 end

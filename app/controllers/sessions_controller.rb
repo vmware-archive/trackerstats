@@ -3,13 +3,13 @@ class SessionsController < ApplicationController
 
   def create
     api_token = if params[:username].present? && params[:password].present?
-                  PivotalTracker::Client.token(params[:username], params[:password])
+                  TrackerApi.login(params[:username], params[:password])
                 elsif params[:api_token].present?
-                  params[:api_token]
+                  TrackerApi.token = params[:api_token]
                 end
 
     if api_token
-      session[:api_token] = api_token
+      session[TrackerApi::API_TOKEN_KEY] = api_token
       redirect_to projects_path
     else
       flash[:alert] = "We were not able to authenticate you lah."

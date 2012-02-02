@@ -4,8 +4,8 @@ gem 'rails'           , '3.1.3'
 gem 'pg'              , '>= 0.11.0'
 gem 'haml'            , '>= 3.1.4'
 gem 'jquery-rails'    , '>= 1.0.19'
+gem 'rest-client'     , '>= 1.6.7'
 
-gem 'pivotal-tracker' , git: "git://github.com/tomazy/pivotal-tracker.git", ref: "cab79b145f4e876781d08df476f78abb4871f8d3"
 gem 'google_visualr'  , '>= 2.1.0'
 
 # Gems used only for assets and not required
@@ -24,6 +24,7 @@ end
 group :test do
   # Pretty printed test output
   gem 'turn', :require => false
+  gem 'webmock', '>= 1.7.10'
 end
 
 group :test, :development do
