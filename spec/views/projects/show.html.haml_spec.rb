@@ -22,6 +22,7 @@ describe "projects/show.html.haml" do
   before do
     assign :project, project
     assign :story_type_chart, chart
+    assign :velocity_range_chart, mock(to_js: '')
   end
 
   it "should render" do
@@ -31,6 +32,7 @@ describe "projects/show.html.haml" do
   it "should have a slider for choosing the iteration range" do
     render
     rendered.should have_css("div#iteration-range")
+    rendered.should have_css("div#velocity-range-chart")
   end
 
 end

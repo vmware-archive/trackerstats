@@ -1,11 +1,15 @@
 %h2 Projects - #{@project.name}
 
+%div
+  %div#velocity-range-chart
+  = render_chart @velocity_range_chart, "velocity-range-chart"
+  %div#iteration-range
+
 = form_for :project, url: project_path(@project.id), method: :get do |form|
   %fieldset
     %label Select dates
     = text_field_tag :start_date, params[:start_date], :placeholder => "Start YYYY/MM/DD"
     = text_field_tag :end_date, params[:end_date], :placeholder => "End YYYY/MM/DD"
-  %div#iteration-range
   %fieldset.buttons
     = form.submit "Refresh Charts", :class => "btn"
 

@@ -1,4 +1,6 @@
 class ChartPresenter
+  DEF_CHART_WIDTH = 1000
+  DEF_CHART_HEIGHT = 500
 
   attr_accessor :stories, :start_date, :end_date
 
@@ -22,7 +24,10 @@ class ChartPresenter
       data_table.add_row( [ type.pluralize.capitalize, stories_with_types_states([type] , ["accepted"]).size ] )
     end
 
-    opts = { :width => 1000, :height => 500, :title => title }
+    opts = {
+        :width => DEF_CHART_WIDTH,
+        :height => DEF_CHART_HEIGHT,
+        :title => title }
     GoogleVisualr::Interactive::PieChart.new(data_table, opts)
   end
 
@@ -54,9 +59,12 @@ class ChartPresenter
         data_table.add_row([number.to_s, values[:created], values[:accepted]])
       end
 
-      opts = { :width => 1000, :height => 500, :title => title, :hAxis => { :title => 'Iteration' } }
+      opts = {
+          :width => DEF_CHART_WIDTH,
+          :height => DEF_CHART_HEIGHT,
+          :title => title,
+          :hAxis => { :title => 'Iteration' } }
       GoogleVisualr::Interactive::AreaChart.new(data_table, opts)
-
     end
 
     # Methods:
@@ -75,8 +83,8 @@ class ChartPresenter
       end
 
       opts = {
-          :width => 1000,
-          :height => 500,
+          :width => DEF_CHART_WIDTH,
+          :height => DEF_CHART_HEIGHT,
           :title => title ,
           :hAxis => {
               :title => 'Iteration',
@@ -111,8 +119,8 @@ class ChartPresenter
       end
 
       opts = {
-          :width => 1000,
-          :height => 500,
+          :width => DEF_CHART_WIDTH,
+          :height => DEF_CHART_HEIGHT,
           :title => title,
           :hAxis => { :title => 'Days' },
           :vAxis => { :title => "Number of #{type_titleized}" }}
@@ -122,7 +130,7 @@ class ChartPresenter
     end
   end
 
-  def velocity(first_iteration_nr, last_iteration_nr)
+  def velocity(first_iteration_nr, last_iteration_nr, options = {})
     data_table = GoogleVisualr::DataTable.new
     data_table.new_column("string", "Iteration")
     data_table.new_column("number", "Points accepted")
@@ -138,14 +146,17 @@ class ChartPresenter
       data_table.add_row([iteration.number.to_s, points])
     end
 
-    opts = {
-        :width => 1000,
-        :height => 500,
+    GoogleVisualr::Interactive::LineChart.new(data_table, options)
+  end
+
+  def date_range_velocity_chart()
+    velocity(@start_iteration_nr, @end_iteration_nr, {
         :title => "Velocity",
         :hAxis => { :title => 'Iterations' },
-        :vAxis => { :title => "Points accepted" }}
-
-    GoogleVisualr::Interactive::LineChart.new(data_table, opts)
+        :vAxis => { :title => "Points accepted" },
+        width: DEF_CHART_WIDTH,
+        height: DEF_CHART_HEIGHT
+    })
   end
 
   protected

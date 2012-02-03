@@ -12,6 +12,25 @@ class ProjectsController < ApplicationController
 
     chart_presenter = ChartPresenter.new(@iterations, @stories, @start_date, @end_date)
 
+    @velocity_range_chart = chart_presenter.velocity(0,
+      @iterations.empty? ? 0 : @iterations.last.number, {
+        theme: 'maximized',
+        title: nil,
+        legend: {position: 'none'},
+        height: 75,
+        hAxis: {
+          title: nil,
+          textPosition: 'none',
+          maxAlternation: 1,
+        },
+        vAxis: {
+          title: nil,
+          textPosition: 'none',
+          gridlines: {color: '#fff'}
+        },
+      }
+    )
+
     @story_type_chart = chart_presenter.accepted_story_types
 
     # Chart 1:  When are features discovered?
@@ -33,9 +52,7 @@ class ProjectsController < ApplicationController
     @chart_6 = chart_presenter.bugs_acceptance_total_by_days
 
     # Chart 7: Velocity
-    @chart_7 = chart_presenter.velocity(
-        @iterations.empty? ? 0 : @iterations.first.number,
-        @iterations.empty? ? 0 : @iterations.last.number)
+    @chart_7 = chart_presenter.date_range_velocity_chart
 
     @charts = [@chart_1, @chart_2, @chart_3, @chart_4, @chart_5, @chart_6, @chart_7]
   end
