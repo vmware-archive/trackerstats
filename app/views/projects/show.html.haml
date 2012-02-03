@@ -6,10 +6,19 @@
     = text_field_tag :start_date, params[:start_date], :placeholder => "Start YYYY/MM/DD"
     = text_field_tag :end_date, params[:end_date], :placeholder => "End YYYY/MM/DD"
   %div#iteration-range
-  :javascript
-    $('#iteration-range').slider({ range: true, min: 0, max: 500, values: [ 75, 300 ] });
   %fieldset.buttons
     = form.submit "Refresh Charts", :class => "btn"
+
+- iterations = [""]
+- iterations += @iterations.map{|it| it.start.strftime('%Y/%m/%d')} unless @iterations.nil?
+
+:javascript
+  $(function() {
+    TrackerStats.set_property("iterations", #{iterations.to_json})
+    TrackerStats.add_datepicker('#start_date');
+    TrackerStats.add_datepicker('#end_date');
+    TrackerStats.setup_iterations_slider('#iteration-range', '#start_date', '#end_date')
+  });
 
 #story_type_chart
 = render_chart @story_type_chart, "story_type_chart"
