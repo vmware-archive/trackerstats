@@ -33,7 +33,9 @@ class ProjectsController < ApplicationController
     @chart_6 = chart_presenter.bugs_acceptance_total_by_days
 
     # Chart 7: Velocity
-    @chart_7 = chart_presenter.velocity
+    @chart_7 = chart_presenter.velocity(
+        @iterations.empty? ? 0 : @iterations.first.number,
+        @iterations.empty? ? 0 : @iterations.last.number)
 
     @charts = [@chart_1, @chart_2, @chart_3, @chart_4, @chart_5, @chart_6, @chart_7]
   end

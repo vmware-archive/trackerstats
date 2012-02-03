@@ -228,14 +228,24 @@ describe ChartPresenter do
       ChartPresenter.new(iterations, nil, iterations.first.start, iterations.last.finish)
     }
 
+
     it "should add up the points accepted in each iteration" do
-      rows = chart.velocity.data_table.rows
+      # Case #1
+      rows = chart.velocity(iterations.first.number, iterations.last.number).data_table.rows
 
       rows.should_not be_nil
       rows.length.should == 2
 
       row_values(rows, 0).should == [iterations[0].number.to_s, 1]
       row_values(rows, 1).should == [iterations[1].number.to_s, 3]
+
+      # Case #2
+      rows = chart.velocity(iterations.first.number, iterations.first.number).data_table.rows
+
+      rows.should_not be_nil
+      rows.length.should == 1
+
+      row_values(rows, 0).should == [iterations[0].number.to_s, 1]
     end
 
   end

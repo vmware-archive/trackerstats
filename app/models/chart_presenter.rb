@@ -9,8 +9,8 @@ class ChartPresenter
     @iterations = iterations
     @stories = stories
 
-    @start_iteration = iteration_number @start_date
-    @end_iteration = iteration_number @end_date
+    @start_iteration_nr = iteration_number @start_date
+    @end_iteration_nr = iteration_number @end_date
   end
 
   def accepted_story_types(title = "Accepted Story Types")
@@ -49,7 +49,7 @@ class ChartPresenter
       data_table.new_column("number", "All #{type_titleized}")
       data_table.new_column("number", "Accepted #{type_titleized}")
 
-      (@start_iteration..@end_iteration).each do |number|
+      (@start_iteration_nr..@end_iteration_nr).each do |number|
         values = stories[number] || { created: 0, accepted:0 }
         data_table.add_row([number.to_s, values[:created], values[:accepted]])
       end
@@ -80,8 +80,8 @@ class ChartPresenter
           :title => title ,
           :hAxis => {
               :title => 'Iteration',
-              :minValue => @start_iteration,
-              :maxValue => @end_iteration,
+              :minValue => @start_iteration_nr,
+              :maxValue => @end_iteration_nr,
           },
           :vAxis => {
               :title => 'Number of Days'}}
@@ -122,13 +122,13 @@ class ChartPresenter
     end
   end
 
-  def velocity
+  def velocity(first_iteration_nr, last_iteration_nr)
     data_table = GoogleVisualr::DataTable.new
     data_table.new_column("string", "Iteration")
     data_table.new_column("number", "Points accepted")
 
     @iterations.each do |iteration|
-      next if iteration.number < @start_iteration or iteration.number > @end_iteration
+      next if iteration.number < first_iteration_nr or iteration.number > last_iteration_nr
 
       points = 0
       iteration.stories.each do |story|
