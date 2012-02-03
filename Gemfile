@@ -24,7 +24,8 @@ end
 group :test do
   # Pretty printed test output
   gem 'turn', :require => false
-  gem 'webmock', '>= 1.7.10'
+  gem 'capybara', '>= 1.1.2'
+  gem "webmock", "~> 1.7.10"
 end
 
 group :test, :development do

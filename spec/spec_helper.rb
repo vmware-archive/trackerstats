@@ -3,6 +3,7 @@ ENV["RAILS_ENV"] ||= 'test'
 require File.expand_path("../../config/environment", __FILE__)
 require 'rspec/rails'
 require 'rspec/autorun'
+require 'capybara/rspec'
 require 'webmock/rspec'
 
 # Requires supporting ruby files with custom matchers and macros, etc,
@@ -34,3 +35,5 @@ RSpec.configure do |config|
   # rspec-rails.
   config.infer_base_class_for_anonymous_controllers = false
 end
+
+WebMock.disable_net_connect!(allow_localhost: true)

@@ -1,16 +1,29 @@
 require 'spec_helper'
 
 describe ProjectsController do
+ let(:project) {
+    FactoryGirl.build :project, name: "Fake Project!!", id: 12345
+  }
+
+  let(:iterations) {
+    [
+        FactoryGirl.build(:iteration_with_stories),
+        FactoryGirl.build(:iteration_with_stories),
+        FactoryGirl.build(:iteration_with_stories),
+    ]
+  }
+
+  let(:stories) {
+    all_stories = []
+    iterations.each do |iteration| all_stories += iteration.stories end
+    all_stories
+  }
 
   describe "#index" do
 
     subject { get :index }
 
     it "should find all the projects and display them" do
-      project = Project.new
-      project.name = "Fake Project!!"
-      project.id = 12345
-
       Project.should_receive(:all).and_return([project])
 
       should be_success
@@ -31,15 +44,22 @@ describe ProjectsController do
   end
 
   describe "#show" do
+
+    subject do
+      get :show, { :id => project.id, :start_date => '2011-01-01' }
+    end
+
     it "should 'work' on a project with no stories" do
-      project = FactoryGirl.build :project, id: 12345
       Project.stub(:find) { project }
       project.stub(:stories) { [] }
       project.stub(:iterations) { [] }
-
-      get :show, { :id => 12345, :start_date => '2011-01-01' }
-
-      response.should be_success
+      
+      should be_success
     end
+
+    pending "should 'work' on a project with stories"
+    pending "should 'work' on a project with iterations"
+    pending "should 'work' on a project with no iterations"
+
   end
 end

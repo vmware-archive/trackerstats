@@ -157,12 +157,13 @@ class ChartPresenter
     end
   end
 
-  def iteration_number(date)
-    return 0 if @iterations.empty? or date < @iterations.first.start
+  def iteration_number(timestamp)
+    date = timestamp.to_datetime
+    return 0 if @iterations.empty? or @iterations.first.start > date
     @iterations.each do |it|
       return it.number if it.start <= date && it.finish > date
     end
-    return @iterations.last.number
+    @iterations.last.number
   end
 
   def interval_in_days(time1, time2)

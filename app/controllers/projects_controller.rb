@@ -47,10 +47,14 @@ class ProjectsController < ApplicationController
   def init_project_and_date_range
     @project  = Project.find(params[:id].to_i)
 
-    if params[:start_date].blank?
-      @start_date = @project.iterations.detect { |iteration| iteration.number == 1 }.start
+    @start_date = if (not params[:start_date].blank?)
+      Date.parse(params[:start_date])
+    elsif not @project.iterations.empty?
+      @project.iterations.detect { |iteration| iteration.number == 1 }.start
+    elsif @project.respond_to?(:start_date)
+      @project.start_date
     else
-      @start_date = Date.parse(params[:start_date])
+      Date.today
     end
 
     @end_date = Date.parse(params[:end_date]) unless params[:end_date].blank?

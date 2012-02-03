@@ -70,7 +70,7 @@ GEM
     ffi (1.0.11)
     google_visualr (2.1.1)
     haml (3.1.4)
-    heroku (2.19.1)
+    heroku (2.19.2)
       launchy (>= 0.3.2)
       rest-client (~> 1.6.1)
       rubyzip
@@ -91,6 +91,7 @@ GEM
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
     mime-types (1.17.2)
+    minitest (2.11.1)
     multi_json (1.0.4)
     nokogiri (1.5.0)
     pg (0.12.2)
@@ -176,8 +177,9 @@ GEM
     treetop (1.4.10)
       polyglot
       polyglot (>= 0.3.1)
-    turn (0.8.3)
+    turn (0.9.1)
       ansi
+      minitest
     tzinfo (0.3.31)
     uglifier (1.2.3)
       execjs (>= 0.3.0)
@@ -192,6 +194,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  capybara (>= 1.1.2)
   coffee-rails (>= 3.1.1)
   evergreen
   factory_girl_rails
@@ -208,4 +211,4 @@ DEPENDENCIES
   sass-rails (>= 3.1.5)
   turn
   uglifier (>= 1.1.0)
-  webmock (>= 1.7.10)
+  webmock (~> 1.7.10)

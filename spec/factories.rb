@@ -7,7 +7,7 @@ FactoryGirl.define do
 
   factory :iteration, class: Iteration do
     sequence(:number, 1)
-    sequence(:start, 0) { |n| n.weeks.from_now.beginning_of_day }
+    sequence(:start, 0) { |n| n.weeks.from_now.to_date }
     finish { start + 1.week }
 
     factory :iteration_with_stories do
