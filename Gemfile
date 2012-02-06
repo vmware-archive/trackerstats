@@ -7,6 +7,7 @@ gem 'jquery-rails'    , '>= 1.0.19'
 gem 'rest-client'     , '>= 1.6.7'
 
 gem 'google_visualr'  , '>= 2.1.0'
+gem 'nokogiri'        , '>= 1.3.3'
 
 # Gems used only for assets and not required
 # in production environments by default.
