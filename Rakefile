@@ -5,3 +5,8 @@
 require File.expand_path('../config/application', __FILE__)
 
 Tracker::Application.load_tasks
+
+task :default do
+  Rake::Task["spec"].invoke
+  Rake::Task["spec:javascripts"].invoke
+end
