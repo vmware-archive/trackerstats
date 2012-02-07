@@ -70,9 +70,22 @@ describe ChartPresenter do
     end
 
     shared_examples_for "a chart generation method" do
-      it "allows the chart name to be set" do
+      it "allows the chart title to be set" do
         data_table = @chart.send(chart_type, "My Title")
         data_table.options["title"].should == "My Title"
+      end
+
+      it "allows the chart description to be set" do
+        desc = "My Description"
+        chart = @chart.send(chart_type)
+        chart.description.should_not == desc
+        chart.description = desc
+        chart.description.should == desc
+      end
+
+      it "and gets its description from I18n" do
+        I18n.should_receive(:t).with("chart_#{chart_type}_desc").and_return("#{chart_type} description")
+        chart = @chart.send(chart_type)
       end
     end
 
@@ -230,6 +243,8 @@ describe ChartPresenter do
 
 
     it "should add up the points accepted in each iteration" do
+      I18n.should_receive(:t).twice.with(:chart_velocity_desc).and_return("bla")
+
       # Case #1
       rows = chart.velocity(iterations.first.number, iterations.last.number).data_table.rows
 

@@ -30,31 +30,31 @@ class ProjectsController < ApplicationController
         },
       }
     )
+    @velocity_range_chart.description = ""
 
-    @story_type_chart = chart_presenter.accepted_story_types
+    @charts = []
+    @charts << chart_presenter.accepted_story_types
 
     # Chart 1:  When are features discovered?
-    @chart_1 = chart_presenter.features_discovery_and_acceptance
+    @charts << chart_presenter.features_discovery_and_acceptance
 
     # Chart 2: How long did it take for features to be accepted in each week?
-    @chart_2 = chart_presenter.features_acceptance_days_by_iteration
+    @charts << chart_presenter.features_acceptance_days_by_iteration
 
     # Chart 3: What is the distribution of time to acceptance for features?
-    @chart_3 = chart_presenter.features_acceptance_total_by_days
+    @charts << chart_presenter.features_acceptance_total_by_days
 
     # Chart 4: When are bugs discovered?
-    @chart_4 = chart_presenter.bugs_discovery_and_acceptance
+    @charts << chart_presenter.bugs_discovery_and_acceptance
 
     # Chart 5: How long did it take for bugs to be accepted in each week?
-    @chart_5 = chart_presenter.bugs_acceptance_days_by_iteration
+    @charts << chart_presenter.bugs_acceptance_days_by_iteration
 
     # Chart 6: What is the distribution of time to acceptance for bugs?
-    @chart_6 = chart_presenter.bugs_acceptance_total_by_days
+    @charts << chart_presenter.bugs_acceptance_total_by_days
 
     # Chart 7: Velocity
-    @chart_7 = chart_presenter.date_range_velocity_chart
-
-    @charts = [@chart_1, @chart_2, @chart_3, @chart_4, @chart_5, @chart_6, @chart_7]
+    @charts << chart_presenter.date_range_velocity_chart
   end
 
   private

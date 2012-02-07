@@ -1,8 +1,22 @@
+class ChartWrapper
+  attr_accessor :description
+
+  def initialize(chart, description)
+    self.description = description
+    @chart = chart
+  end
+
+  def method_missing(m, *args, &block)
+    @chart.send m, *args, &block
+  end
+end
+
 class ChartPresenter
   DEF_CHART_WIDTH = 1000
   DEF_CHART_HEIGHT = 500
 
   attr_accessor :stories, :start_date, :end_date
+
 
   def initialize(iterations, stories, start_date, end_date = nil)
     @start_date = start_date.to_datetime
@@ -28,8 +42,13 @@ class ChartPresenter
         :width => DEF_CHART_WIDTH,
         :height => DEF_CHART_HEIGHT,
         :title => title }
-    GoogleVisualr::Interactive::PieChart.new(data_table, opts)
+
+    ChartWrapper.new(
+        GoogleVisualr::Interactive::PieChart.new(data_table, opts),
+        I18n.t('chart_accepted_story_types_desc')
+    )
   end
+
 
   %W{feature bug}.each do |type|
     type_pluralized = type.pluralize
@@ -64,7 +83,10 @@ class ChartPresenter
           :height => DEF_CHART_HEIGHT,
           :title => title,
           :hAxis => { :title => 'Iteration' } }
-      GoogleVisualr::Interactive::AreaChart.new(data_table, opts)
+      ChartWrapper.new(
+          GoogleVisualr::Interactive::AreaChart.new(data_table, opts),
+          I18n.t("chart_#{type_pluralized}_discovery_and_acceptance_desc")
+      )
     end
 
     # Methods:
@@ -93,7 +115,11 @@ class ChartPresenter
           },
           :vAxis => {
               :title => 'Number of Days'}}
-      GoogleVisualr::Interactive::ScatterChart.new(data_table, opts)
+
+      ChartWrapper.new(
+          GoogleVisualr::Interactive::ScatterChart.new(data_table, opts),
+          I18n.t("chart_#{type_pluralized}_acceptance_days_by_iteration_desc")
+      )
 
     end
 
@@ -125,7 +151,10 @@ class ChartPresenter
           :hAxis => { :title => 'Days' },
           :vAxis => { :title => "Number of #{type_titleized}" }}
 
-      GoogleVisualr::Interactive::ColumnChart.new(data_table, opts)
+      ChartWrapper.new(
+          GoogleVisualr::Interactive::ColumnChart.new(data_table, opts),
+          I18n.t("chart_#{type_pluralized}_acceptance_total_by_days_desc")
+      )
 
     end
   end
@@ -146,7 +175,10 @@ class ChartPresenter
       data_table.add_row([iteration.number.to_s, points])
     end
 
-    GoogleVisualr::Interactive::LineChart.new(data_table, options)
+    ChartWrapper.new(
+        GoogleVisualr::Interactive::LineChart.new(data_table, options),
+        I18n.t(:chart_velocity_desc)
+        )
   end
 
   def date_range_velocity_chart()

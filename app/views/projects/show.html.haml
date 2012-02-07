@@ -1,8 +1,7 @@
 %h2 Projects - #{@project.name}
 
 %div
-  %div#velocity-range-chart
-  = render_chart @velocity_range_chart, "velocity-range-chart"
+  = render :partial => 'shared/chart', locals: {chart: @velocity_range_chart, chart_id: "velocity-range-chart"}
   %div#iteration-range
 
 = form_for :project, url: project_path(@project.id), method: :get do |form|
@@ -21,9 +20,9 @@
     TrackerStats.set_property("iterations", #{iterations.to_json})
     TrackerStats.add_datepicker('#start_date');
     TrackerStats.add_datepicker('#end_date');
-    TrackerStats.setup_iterations_slider('#iteration-range', '#start_date', '#end_date')
+    TrackerStats.setup_iterations_slider('#iteration-range', '#start_date', '#end_date');
+    $('div.tooltip_hotspot').tooltip({relative: true}).dynamic();
   });
 
-#story_type_chart
-= render_chart @story_type_chart, "story_type_chart"
-= render :partial => "shared/chart", :collection => @charts
+- @charts.each_with_index do |chart, idx|
+  = render :partial => 'shared/chart', locals: {chart: chart, chart_id: "chart_#{idx}"}

@@ -38,8 +38,11 @@ describe "Setting the API token" do
       end
 
       it "can see the project charts" do
-        page.should have_css("#story_type_chart")
-        (0..6).each { |i| page.should have_css("#chart_#{i}") }
+        (0..7).each { |i| page.should have_css("#chart_#{i}") }
+      end
+
+      it "should have valid chart descriptions" do
+        page.should_not have_content('translation missing')
       end
 
       it "has a iteration range slider", js: true do
@@ -50,6 +53,14 @@ describe "Setting the API token" do
         class_name = "hasDatepicker"
         page.should have_css("#start_date.#{class_name}")
         page.should have_css("#end_date.#{class_name}")
+      end
+
+      it "displays a tooltip when the tooltip hotspot is hovered", js: true do
+        page.should have_selector('#chart_0 div.tooltip', visible: false)
+
+        page.evaluate_script("(function(){$('#chart_0 div.tooltip_hotspot').trigger('mouseover'); return true;})()")
+
+        page.should have_selector('#chart_0 div.tooltip', visible: true)
       end
 
     end

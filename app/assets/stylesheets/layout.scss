@@ -14,6 +14,18 @@ footer {
   margin: 0 auto;
 }
 
+div.chart-container {
+    position: relative;
+
+    div.tooltip_hotspot{
+        right: 0;
+        top: 0;
+        cursor: pointer;
+        position: absolute;
+        margin: 5px;
+    }
+}
+
 header {
   padding: 10px;
   background-color: #256188;
@@ -43,4 +55,14 @@ header {
     width: 350px;
     padding: 20px 50px;
   }
+}
+.tooltip {
+    $padding: 25px;
+	display: none;
+	background: transparent url(/assets/jquerytools/white-small-tooltip.png);
+	font-size: 12px;
+	height: 109px - 2 * $padding;
+	width: 209px - 2 * $padding;
+	padding: $padding;
+	color: #000;
 }
