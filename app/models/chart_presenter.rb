@@ -71,11 +71,21 @@ class ChartPresenter
       data_table = GoogleVisualr::DataTable.new
       data_table.new_column("string", "Iteration")
       data_table.new_column("number", "All #{type_titleized}")
+      data_table.new_column("string", nil, nil, "tooltip")
       data_table.new_column("number", "Accepted #{type_titleized}")
+      data_table.new_column("string", nil, nil, "tooltip")
 
       (@start_iteration_nr..@end_iteration_nr).each do |number|
         values = stories[number] || {created: 0, accepted: 0}
-        data_table.add_row([number.to_s, values[:created], values[:accepted]])
+        data_table.add_row([
+          number.to_s,
+          values[:created],
+          "Iteration ##{number}\\n#{type_titleized}: #{values[:created]}",
+          values[:accepted],
+          "Iteration ##{number}\\n#{type_titleized}: #{values[:accepted]}",
+          ]
+        )
+
       end
 
       opts = {
@@ -97,11 +107,13 @@ class ChartPresenter
       data_table = GoogleVisualr::DataTable.new
       data_table.new_column("number", "Iteration")
       data_table.new_column("number", "#{type_titleized}")
+      data_table.new_column("string", nil, nil, "tooltip")
+
 
       stories_with_types_states([type], ["accepted"]).each do |story|
         nr = iteration_number(story.created_at)
         days = interval_in_days story.accepted_at, story.created_at
-        data_table.add_row([nr, days])
+        data_table.add_row([nr, days, "Iteration ##{nr}\\nDays: #{days}"])
       end
 
       opts = {
@@ -140,8 +152,9 @@ class ChartPresenter
       data_table = GoogleVisualr::DataTable.new
       data_table.new_column("string", "Days")
       data_table.new_column("number", "Number of #{type_titleized}")
+      data_table.new_column("string", nil, nil, "tooltip")
       (0..max_days).each do |days|
-        data_table.add_row([days.to_s, stories[days]])
+        data_table.add_row([days.to_s, stories[days], "Days: #{days}\\n#{type_titleized}: #{stories[days]}"])
       end
 
       opts = {
@@ -215,6 +228,7 @@ class ChartPresenter
     data_table = GoogleVisualr::DataTable.new
     data_table.new_column("string", "Iteration")
     data_table.new_column("number", "Points accepted")
+    data_table.new_column('string', nil, nil, 'tooltip')
 
     @iterations.each do |iteration|
       next if iteration.number < first_iteration_nr or iteration.number > last_iteration_nr
@@ -224,8 +238,13 @@ class ChartPresenter
         points += story.estimate if story.respond_to?(:estimate) and story.accepted?
       end
 
-      data_table.add_row([iteration.number.to_s, points])
+      data_table.add_row([iteration.number.to_s, points, "Iteration ##{iteration.number}\\nPoints accepted: #{points}"])
     end
+
+    formatter = GoogleVisualr::NumberFormat.new({prefix: 'Iteration #', fractionDigits: 0})
+    formatter.columns(0)
+
+    data_table.format(formatter)
 
     ChartWrapper.new(
         GoogleVisualr::Interactive::LineChart.new(data_table, options),

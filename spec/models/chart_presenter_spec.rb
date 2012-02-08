@@ -1,6 +1,15 @@
 require 'spec_helper'
 
 describe ChartPresenter do
+
+  def row_values(rows, num)
+    rows[num].map { |c| c.v }
+  end
+
+  def filter_tooltips(rows, row_idx)
+    row_values(rows, row_idx).select{|x| !(x =~ /^(Iteration|Days)/)}
+  end
+
   let(:story_type) { "feature" }
 
   before :each do
@@ -118,11 +127,11 @@ describe ChartPresenter do
 
         rows.length.should == 5
 
-        row_values(rows, 0).should == ["0", 1, 0]
-        row_values(rows, 1).should == ["1", 2, 1]
-        row_values(rows, 2).should == ["2", 1, 1]
-        row_values(rows, 3).should == ["3", 2, 0]
-        row_values(rows, 4).should == ["4", 0, 0]
+        filter_tooltips(rows, 0).should == ["0", 1, 0]
+        filter_tooltips(rows, 1).should == ["1", 2, 1]
+        filter_tooltips(rows, 2).should == ["2", 1, 1]
+        filter_tooltips(rows, 3).should == ["3", 2, 0]
+        filter_tooltips(rows, 4).should == ["4", 0, 0]
       end
     end
 
@@ -132,8 +141,8 @@ describe ChartPresenter do
 
         rows.length.should == 2
 
-        row_values(rows, 0).should == [1, 25]
-        row_values(rows, 1).should == [2, 6]
+        filter_tooltips(rows, 0).should == [1, 25]
+        filter_tooltips(rows, 1).should == [2, 6]
       end
     end
 
@@ -143,8 +152,8 @@ describe ChartPresenter do
 
         rows.length.should == 26
 
-        row_values(rows, 6).should  == ["6", 1]
-        row_values(rows, 25).should == ["25", 1]
+        filter_tooltips(rows, 6).should  == ["6", 1]
+        filter_tooltips(rows, 25).should == ["25", 1]
       end
     end
 
@@ -241,10 +250,10 @@ describe ChartPresenter do
       rows.should_not be_nil
       rows.length.should == 4
 
-      row_values(rows, 0).should == [@iterations.all[0].number.to_s, 0]
-      row_values(rows, 1).should == [@iterations.all[1].number.to_s, 0]
-      row_values(rows, 2).should == [@iterations.all[2].number.to_s, 1]
-      row_values(rows, 3).should == [@iterations.all[3].number.to_s, 1]
+      filter_tooltips(rows, 0).should == [@iterations.all[0].number.to_s, 0]
+      filter_tooltips(rows, 1).should == [@iterations.all[1].number.to_s, 0]
+      filter_tooltips(rows, 2).should == [@iterations.all[2].number.to_s, 1]
+      filter_tooltips(rows, 3).should == [@iterations.all[3].number.to_s, 1]
     end
   end
 
@@ -264,9 +273,5 @@ describe ChartPresenter do
         chart.end_date.should == DateTime.now
       end
     end
-  end
-
-  def row_values(rows, num)
-    rows[num].map { |c| c.v }
   end
 end
