@@ -4,10 +4,12 @@ gem 'rails'           , '3.1.3'
 gem 'pg'              , '>= 0.11.0'
 gem 'haml'            , '>= 3.1.4'
 gem 'jquery-rails'    , '>= 1.0.19'
+gem 'jquery-ui-themes' ,'>= 0.0.4'
 gem 'rest-client'     , '>= 1.6.7'
 
 gem 'google_visualr'  , '>= 2.1.0'
 gem 'nokogiri'        , '>= 1.3.3'
+
 
 # Gems used only for assets and not required
 # in production environments by default.
