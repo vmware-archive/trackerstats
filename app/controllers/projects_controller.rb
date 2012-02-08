@@ -12,24 +12,7 @@ class ProjectsController < ApplicationController
 
     chart_presenter = ChartPresenter.new(@iterations, @stories, @start_date, @end_date)
 
-    @velocity_range_chart = chart_presenter.velocity(0,
-      @iterations.empty? ? 0 : @iterations.last.number, {
-        theme: 'maximized',
-        title: nil,
-        legend: {position: 'none'},
-        height: 75,
-        hAxis: {
-          title: nil,
-          textPosition: 'none',
-          maxAlternation: 1,
-        },
-        vAxis: {
-          title: nil,
-          textPosition: 'none',
-          gridlines: {color: '#fff'}
-        },
-      }
-    )
+    @velocity_range_chart = chart_presenter.whole_project_velocity_chart()
     @velocity_range_chart.description = ""
 
     @charts = []
@@ -66,16 +49,7 @@ class ProjectsController < ApplicationController
   def init_project_and_date_range
     @project  = Project.find(params[:id].to_i)
 
-    @start_date = if (not params[:start_date].blank?)
-      Date.parse(params[:start_date])
-    elsif not @project.iterations.empty?
-      @project.iterations.detect { |iteration| iteration.number == 1 }.start
-    elsif @project.respond_to?(:start_date)
-      @project.start_date
-    else
-      Date.today
-    end
-
+    @start_date = Date.parse(params[:start_date]) unless params[:start_date].blank?
     @end_date = Date.parse(params[:end_date]) unless params[:end_date].blank?
   end
 end

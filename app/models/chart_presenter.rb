@@ -18,12 +18,12 @@ class ChartPresenter
   attr_accessor :stories, :start_date, :end_date
 
 
-  def initialize(iterations, stories, start_date, end_date = nil)
-    @start_date = start_date.to_datetime
-    @end_date = end_date ? end_date.to_datetime : DateTime.now
-
+  def initialize(iterations, stories, start_date = nil, end_date = nil)
     @iterations = iterations
     @stories = stories
+
+    @start_date = start_date ? start_date.to_datetime : first_active_story_date
+    @end_date = end_date ? end_date.to_datetime : last_active_story_date
 
     @start_iteration_nr = iteration_number @start_date
     @end_iteration_nr = iteration_number @end_date
@@ -35,13 +35,13 @@ class ChartPresenter
     data_table.new_column('number', 'Number')
 
     %W{feature chore bug}.each do |type|
-      data_table.add_row( [ type.pluralize.capitalize, stories_with_types_states([type] , ["accepted"]).size ] )
+      data_table.add_row([type.pluralize.capitalize, stories_with_types_states([type], ["accepted"]).size])
     end
 
     opts = {
         :width => DEF_CHART_WIDTH,
         :height => DEF_CHART_HEIGHT,
-        :title => title }
+        :title => title}
 
     ChartWrapper.new(
         GoogleVisualr::Interactive::PieChart.new(data_table, opts),
@@ -52,7 +52,7 @@ class ChartPresenter
 
   %W{feature bug}.each do |type|
     type_pluralized = type.pluralize
-    type_titleized  = type.pluralize.titleize
+    type_titleized = type.pluralize.titleize
 
     # Methods:
     # features_discovery_and_acceptance
@@ -63,9 +63,9 @@ class ChartPresenter
 
       stories_with_types_states([type], nil).each do |story|
         nr = iteration_number(story.created_at)
-        stories[nr] ||= { created: 0, accepted:0 }
-        stories[nr][:created]  += 1
-        stories[nr][:accepted] += 1 if story.current_state == "accepted"
+        stories[nr] ||= {created: 0, accepted: 0}
+        stories[nr][:created] += 1
+        stories[nr][:accepted] += 1 if story.accepted?
       end
 
       data_table = GoogleVisualr::DataTable.new
@@ -74,7 +74,7 @@ class ChartPresenter
       data_table.new_column("number", "Accepted #{type_titleized}")
 
       (@start_iteration_nr..@end_iteration_nr).each do |number|
-        values = stories[number] || { created: 0, accepted:0 }
+        values = stories[number] || {created: 0, accepted: 0}
         data_table.add_row([number.to_s, values[:created], values[:accepted]])
       end
 
@@ -82,7 +82,7 @@ class ChartPresenter
           :width => DEF_CHART_WIDTH,
           :height => DEF_CHART_HEIGHT,
           :title => title,
-          :hAxis => { :title => 'Iteration' } }
+          :hAxis => {:title => 'Iteration'}}
       ChartWrapper.new(
           GoogleVisualr::Interactive::AreaChart.new(data_table, opts),
           I18n.t("chart_#{type_pluralized}_discovery_and_acceptance_desc")
@@ -107,7 +107,7 @@ class ChartPresenter
       opts = {
           :width => DEF_CHART_WIDTH,
           :height => DEF_CHART_HEIGHT,
-          :title => title ,
+          :title => title,
           :hAxis => {
               :title => 'Iteration',
               :minValue => @start_iteration_nr,
@@ -133,7 +133,7 @@ class ChartPresenter
       stories_with_types_states([type], ["accepted"]).each do |story|
         days = interval_in_days story.accepted_at, story.created_at
         stories[days] ||= 0
-        stories[days]  += 1
+        stories[days] += 1
         max_days = days if max_days < days
       end
 
@@ -148,8 +148,8 @@ class ChartPresenter
           :width => DEF_CHART_WIDTH,
           :height => DEF_CHART_HEIGHT,
           :title => title,
-          :hAxis => { :title => 'Days' },
-          :vAxis => { :title => "Number of #{type_titleized}" }}
+          :hAxis => {:title => 'Days'},
+          :vAxis => {:title => "Number of #{type_titleized}"}}
 
       ChartWrapper.new(
           GoogleVisualr::Interactive::ColumnChart.new(data_table, opts),
@@ -159,7 +159,59 @@ class ChartPresenter
     end
   end
 
-  def velocity(first_iteration_nr, last_iteration_nr, options = {})
+  def whole_project_velocity_chart()
+
+    start_iteration_nr = iteration_number first_active_story_date
+    end_iteration_nr = iteration_number last_active_story_date
+
+    velocity_chart(start_iteration_nr, end_iteration_nr, {
+        theme: 'maximized',
+        title: nil,
+        legend: {position: 'none'},
+        height: 75,
+        hAxis: {
+            title: nil,
+            textPosition: 'none',
+            maxAlternation: 1,
+        },
+        vAxis: {
+            title: nil,
+            textPosition: 'none',
+            gridlines: {color: '#fff'}
+        },
+    })
+  end
+
+
+  def date_range_velocity_chart()
+    velocity_chart(@start_iteration_nr, @end_iteration_nr, {
+        :title => "Velocity",
+        :hAxis => {:title => 'Iterations'},
+        :vAxis => {:title => "Points accepted"},
+        width: DEF_CHART_WIDTH,
+        height: DEF_CHART_HEIGHT
+    })
+  end
+
+  private
+
+  def first_active_story_date
+    if not @stories.empty?
+      @stories.map { |story| story.created_at }.sort.first
+    else
+      DateTime.now
+    end
+  end
+
+  def last_active_story_date
+    if not @stories.empty?
+      @stories.map { |story| story.accepted? ? story.accepted_at : story.created_at }.sort.last
+    else
+      DateTime.now
+    end
+  end
+
+  def velocity_chart(first_iteration_nr, last_iteration_nr, options = {})
     data_table = GoogleVisualr::DataTable.new
     data_table.new_column("string", "Iteration")
     data_table.new_column("number", "Points accepted")
@@ -169,7 +221,7 @@ class ChartPresenter
 
       points = 0
       iteration.stories.each do |story|
-        points += story.estimate if story.respond_to?(:estimate) and story.current_state == "accepted"
+        points += story.estimate if story.respond_to?(:estimate) and story.accepted?
       end
 
       data_table.add_row([iteration.number.to_s, points])
@@ -178,20 +230,9 @@ class ChartPresenter
     ChartWrapper.new(
         GoogleVisualr::Interactive::LineChart.new(data_table, options),
         I18n.t(:chart_velocity_desc)
-        )
+    )
   end
 
-  def date_range_velocity_chart()
-    velocity(@start_iteration_nr, @end_iteration_nr, {
-        :title => "Velocity",
-        :hAxis => { :title => 'Iterations' },
-        :vAxis => { :title => "Points accepted" },
-        width: DEF_CHART_WIDTH,
-        height: DEF_CHART_HEIGHT
-    })
-  end
-
-  protected
 
   def stories_with_types_states(types, states)
     @stories.select do |story|

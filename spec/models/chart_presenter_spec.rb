@@ -1,72 +1,85 @@
 require 'spec_helper'
 
 describe ChartPresenter do
+  let(:story_type) { "feature" }
 
-  context "feature/bug charts" do
-    before do
-      @sample_stories = [
+  before :each do
+    @sample_stories = [
         double(
             :story_type => story_type,
             :created_at => DateTime.parse("2011-01-03 00:01:00 Z"), # iteration 1
             :current_state => "accepted",
-            :accepted_at => DateTime.parse("2011-01-28 00:02:00 Z")), # iteration 4
+            :accepted_at => DateTime.parse("2011-01-28 00:02:00 Z"),# ->iteration 4
+            :estimate => 1,
+            :accepted? => true),
         double(
             :story_type => story_type,
-            :created_at => DateTime.parse("2011-01-08 00:01:00 Z"),   # iteration 1
-            :current_state => "started"),
+            :created_at => DateTime.parse("2011-01-08 00:01:00 Z"), # ->iteration 1
+            :current_state => "started",
+            :accepted? => false),
         double(
             :story_type => story_type,
-            :created_at => DateTime.parse("2011-01-15 00:01:00 Z"),   # iteration 2
+            :created_at => DateTime.parse("2011-01-15 00:01:00 Z"), # iteration 2
             :current_state => "accepted",
-            :accepted_at => DateTime.parse("2011-01-21 00:02:00 Z")), # iteration 3
+            :estimate => 1,
+            :accepted_at => DateTime.parse("2011-01-21 00:02:00 Z"),# ->iteration 3
+            :accepted? => true),
         double(
             :story_type => story_type,
-            :created_at => DateTime.parse("2011-01-22 00:01:00 Z"),   # iteration 3
-            :current_state => "started"),
-      # ICEBOX
+            :created_at => DateTime.parse("2011-01-22 00:01:00 Z"), # ->iteration 3
+            :current_state => "started",
+            :accepted? => false),
+        # ICEBOX
         double(
             :story_type => story_type,
             :created_at => DateTime.parse("2010-01-22 00:01:00 Z"), # iteration 0
-            :current_state => "unscheduled"),
+            :current_state => "unscheduled",
+            :accepted? => false),
         double(
             :story_type => story_type,
             :created_at => DateTime.parse("2011-01-22 00:01:00 Z"), # iteration 3
-            :current_state => "unscheduled")
-      ]
+            :current_state => "unscheduled",
+            :accepted? => false)
+    ]
 
-      stories = double("project stories")
-      stories.stub(:all).and_return(@sample_stories)
+    stories = double("project stories")
+    stories.stub(:all).and_return(@sample_stories)
 
-      iterations = double("iterations")
-      iterations.stub(:all).and_return([
-        double(
-          :number => 1,
-          :start => Date.parse("2011-01-03"),
-          :finish => Date.parse("2011-01-10"),
-          :stories => []),
-        double(
-          :number => 2,
-          :start => Date.parse("2011-01-10"),
-          :finish => Date.parse("2011-01-17"),
-          :stories => []),
-        double(
-          :number => 3,
-          :start => Date.parse("2011-01-17"),
-          :finish => Date.parse("2011-01-24"),
-          :stories => []),
-        double(
-          :number => 4,
-          :start => Date.parse("2011-01-24"),
-          :finish => Date.parse("2011-01-31"),
-          :stories => []),
-      ])
+    @iterations = double("iterations")
+    @iterations.stub(:all).and_return([
+                                          double(
+                                              :number => 1,
+                                              :start => Date.parse("2011-01-03"),
+                                              :finish => Date.parse("2011-01-10"),
+                                              :stories => []),
+                                          double(
+                                              :number => 2,
+                                              :start => Date.parse("2011-01-10"),
+                                              :finish => Date.parse("2011-01-17"),
+                                              :stories => []),
+                                          double(
+                                              :number => 3,
+                                              :start => Date.parse("2011-01-17"),
+                                              :finish => Date.parse("2011-01-24"),
+                                              :stories => []),
+                                          double(
+                                              :number => 4,
+                                              :start => Date.parse("2011-01-24"),
+                                              :finish => Date.parse("2011-01-31"),
+                                              :stories => []),
+                                      ])
 
-      iterations.all[0].stories << @sample_stories[0]
-      iterations.all[1].stories << @sample_stories[1]
-      iterations.all[2].stories << @sample_stories[2]
-      iterations.all[3].stories << @sample_stories[3]
+    @iterations.all[0].stories << @sample_stories[1]
+    @iterations.all[2].stories << @sample_stories[3]
+    @iterations.all[2].stories << @sample_stories[2]
+    @iterations.all[3].stories << @sample_stories[0]
 
-      @chart = ChartPresenter.new(iterations.all, @sample_stories, Date.parse("2010-01-01"))
+#    @iterations.all[1].stories << @sample_stories[1]
+  end
+
+  context "feature/bug charts" do
+    before do
+      @chart = ChartPresenter.new(@iterations.all, @sample_stories, Date.parse("2010-01-01"))
     end
 
     shared_examples_for "a chart generation method" do
@@ -93,9 +106,9 @@ describe ChartPresenter do
       it "produces a chart" do
         rows = rows_for_chart(chart_type)
 
-        row_values(rows, 0).should == [ "Features", feature_count]
-        row_values(rows, 1).should == [ "Chores"  , chore_count]
-        row_values(rows, 2).should == [ "Bugs"    , bug_count]
+        row_values(rows, 0).should == ["Features", feature_count]
+        row_values(rows, 1).should == ["Chores", chore_count]
+        row_values(rows, 2).should == ["Bugs", bug_count]
       end
     end
 
@@ -220,49 +233,37 @@ describe ChartPresenter do
     end
   end
 
-  describe "#velocity" do
-
-    let(:iterations) {
-      [
-          FactoryGirl.build(:iteration, stories: [
-              FactoryGirl.build(:story, :feature, :started, estimate: 1),
-              FactoryGirl.build(:story, :feature, :accepted, estimate: 1),
-              FactoryGirl.build(:story, :chore, :accepted),
-          ]),
-          FactoryGirl.build(:iteration, stories: [
-              FactoryGirl.build(:story, :feature, :started, estimate: 1),
-              FactoryGirl.build(:story, :bug, :accepted, estimate: 1),
-              FactoryGirl.build(:story, :chore, :accepted, estimate: 2),
-          ]),
-      ]
-    }
-
-    let(:chart) {
-      ChartPresenter.new(iterations, nil, iterations.first.start, iterations.last.finish)
-    }
-
-
-    it "should add up the points accepted in each iteration" do
-      I18n.should_receive(:t).twice.with(:chart_velocity_desc).and_return("bla")
-
-      # Case #1
-      rows = chart.velocity(iterations.first.number, iterations.last.number).data_table.rows
+  describe "#whole_project_velocity_chart" do
+    it "should detect first and last iteration with any activity for the chart" do
+      @chart = ChartPresenter.new(@iterations.all, @sample_stories)
+      rows = @chart.whole_project_velocity_chart().data_table.rows
 
       rows.should_not be_nil
-      rows.length.should == 2
+      rows.length.should == 4
 
-      row_values(rows, 0).should == [iterations[0].number.to_s, 1]
-      row_values(rows, 1).should == [iterations[1].number.to_s, 3]
+      row_values(rows, 0).should == [@iterations.all[0].number.to_s, 0]
+      row_values(rows, 1).should == [@iterations.all[1].number.to_s, 0]
+      row_values(rows, 2).should == [@iterations.all[2].number.to_s, 1]
+      row_values(rows, 3).should == [@iterations.all[3].number.to_s, 1]
+    end
+  end
 
-      # Case #2
-      rows = chart.velocity(iterations.first.number, iterations.first.number).data_table.rows
 
-      rows.should_not be_nil
-      rows.length.should == 1
+  context "if start date and end date not provided" do
 
-      row_values(rows, 0).should == [iterations[0].number.to_s, 1]
+    it "should detect start and end date from provided stories" do
+      chart = ChartPresenter.new(@iterations.all, @sample_stories)
+      chart.start_date.should == @sample_stories[4].created_at
+      chart.end_date.should == @sample_stories[0].accepted_at
     end
 
+    it "should default to current date for start and end date when no stories provided" do
+      Timecop.freeze(Time.now) do
+        chart = ChartPresenter.new(@iterations.all, [])
+        chart.start_date.should == DateTime.now
+        chart.end_date.should == DateTime.now
+      end
+    end
   end
 
   def row_values(rows, num)
