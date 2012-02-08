@@ -1,1 +1,2 @@
-rvm use ruby-1.9.2-p290@trackerstats --create
+#rvm use ruby-1.9.2-p290@trackerstats --create
+rvm use ruby-1.9.3-p0@trackerstats --create
