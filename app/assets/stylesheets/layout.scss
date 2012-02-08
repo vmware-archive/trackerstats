@@ -70,3 +70,8 @@ header {
 #iteration-range{
     margin-top: 3px;
 }
+
+.hasDatepicker, .btn{
+   position: relative;
+   z-index: 1;
+}

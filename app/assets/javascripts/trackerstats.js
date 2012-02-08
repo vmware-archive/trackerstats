@@ -10,8 +10,25 @@ TrackerStats = {
 };
 
 TrackerStats.add_datepicker = function(selector){
+    this.overlay = null;
+    var overlayId = 'TrackerStats_datepicker_overlay',
+        that = this;
+
     $(selector).datepicker({
-        dateFormat: "yy/mm/dd"
+        dateFormat: "yy/mm/dd",
+
+        beforeShow: function(){
+            if (!that.overlay){
+                $('body').append('<div id="' + overlayId + '" style="z-index: 0; position: fixed; top: 0; left: 0; width: 100%; height: 100%; opacity: 0"/>');
+                that.overlay = $('#' + overlayId);
+            }
+            that.overlay.show();
+            return true;
+        },
+        onClose: function(dateText, inst){
+            that.overlay.hide();
+            return true;
+        }
     });
 };
 
