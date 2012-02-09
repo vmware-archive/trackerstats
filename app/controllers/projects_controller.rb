@@ -16,28 +16,19 @@ class ProjectsController < ApplicationController
     @velocity_range_chart.description = ""
 
     @charts = []
-    @charts << chart_presenter.accepted_story_types
+    @charts << chart_presenter.accepted_story_types_chart
 
-    # Chart 1:  When are features discovered?
-    @charts << chart_presenter.features_discovery_and_acceptance
-
-    # Chart 2: How long did it take for features to be accepted in each week?
-    @charts << chart_presenter.features_acceptance_days_by_iteration
-
-    # Chart 3: What is the distribution of time to acceptance for features?
-    @charts << chart_presenter.features_acceptance_total_by_days
-
-    # Chart 4: When are bugs discovered?
-    @charts << chart_presenter.bugs_discovery_and_acceptance
-
-    # Chart 5: How long did it take for bugs to be accepted in each week?
-    @charts << chart_presenter.bugs_acceptance_days_by_iteration
-
-    # Chart 6: What is the distribution of time to acceptance for bugs?
-    @charts << chart_presenter.bugs_acceptance_total_by_days
-
-    # Chart 7: Velocity
+    # Chart 1: Velocity
     @charts << chart_presenter.date_range_velocity_chart
+
+    # Chart 2:  When are features discovered?
+    @charts << chart_presenter.discovery_and_acceptance_chart
+
+    # Chart 3: How long did it take for features to be accepted in each week?
+    @charts << chart_presenter.acceptance_days_by_iteration_chart
+
+    # Chart 4: What is the distribution of time to acceptance for features?
+    @charts << chart_presenter.acceptance_by_days_chart
   end
 
   private

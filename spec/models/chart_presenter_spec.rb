@@ -7,45 +7,43 @@ describe ChartPresenter do
   end
 
   def filter_tooltips(rows, row_idx)
-    row_values(rows, row_idx).select{|x| !(x =~ /^(Iteration|Days)/)}
+    row_values(rows, row_idx).select{|x| !(x =~ /^(Iteration|Days|^$)/)}
   end
-
-  let(:story_type) { "feature" }
 
   before :each do
     @sample_stories = [
         double(
-            :story_type => story_type,
+            :story_type => ChartPresenter::STORY_TYPE_FEATURE,
             :created_at => DateTime.parse("2011-01-03 00:01:00 Z"), # iteration 1
             :current_state => "accepted",
             :accepted_at => DateTime.parse("2011-01-28 00:02:00 Z"),# ->iteration 4
             :estimate => 1,
             :accepted? => true),
         double(
-            :story_type => story_type,
+            :story_type => ChartPresenter::STORY_TYPE_BUG,
             :created_at => DateTime.parse("2011-01-08 00:01:00 Z"), # ->iteration 1
             :current_state => "started",
             :accepted? => false),
         double(
-            :story_type => story_type,
+            :story_type => ChartPresenter::STORY_TYPE_FEATURE,
             :created_at => DateTime.parse("2011-01-15 00:01:00 Z"), # iteration 2
             :current_state => "accepted",
             :estimate => 1,
             :accepted_at => DateTime.parse("2011-01-21 00:02:00 Z"),# ->iteration 3
             :accepted? => true),
         double(
-            :story_type => story_type,
+            :story_type => ChartPresenter::STORY_TYPE_CHORE,
             :created_at => DateTime.parse("2011-01-22 00:01:00 Z"), # ->iteration 3
             :current_state => "started",
             :accepted? => false),
         # ICEBOX
         double(
-            :story_type => story_type,
+            :story_type => ChartPresenter::STORY_TYPE_FEATURE,
             :created_at => DateTime.parse("2010-01-22 00:01:00 Z"), # iteration 0
             :current_state => "unscheduled",
             :accepted? => false),
         double(
-            :story_type => story_type,
+            :story_type => ChartPresenter::STORY_TYPE_BUG,
             :created_at => DateTime.parse("2011-01-22 00:01:00 Z"), # iteration 3
             :current_state => "unscheduled",
             :accepted? => false)
@@ -56,189 +54,124 @@ describe ChartPresenter do
 
     @iterations = double("iterations")
     @iterations.stub(:all).and_return([
-                                          double(
-                                              :number => 1,
-                                              :start => Date.parse("2011-01-03"),
-                                              :finish => Date.parse("2011-01-10"),
-                                              :stories => []),
-                                          double(
-                                              :number => 2,
-                                              :start => Date.parse("2011-01-10"),
-                                              :finish => Date.parse("2011-01-17"),
-                                              :stories => []),
-                                          double(
-                                              :number => 3,
-                                              :start => Date.parse("2011-01-17"),
-                                              :finish => Date.parse("2011-01-24"),
-                                              :stories => []),
-                                          double(
-                                              :number => 4,
-                                              :start => Date.parse("2011-01-24"),
-                                              :finish => Date.parse("2011-01-31"),
-                                              :stories => []),
-                                      ])
+      double(
+        :number => 1,
+        :start => Date.parse("2011-01-03"),
+        :finish => Date.parse("2011-01-10"),
+        :stories => []),
+      double(
+        :number => 2,
+        :start => Date.parse("2011-01-10"),
+        :finish => Date.parse("2011-01-17"),
+        :stories => []),
+      double(
+        :number => 3,
+        :start => Date.parse("2011-01-17"),
+        :finish => Date.parse("2011-01-24"),
+        :stories => []),
+      double(
+        :number => 4,
+        :start => Date.parse("2011-01-24"),
+        :finish => Date.parse("2011-01-31"),
+        :stories => []),
+      ])
 
     @iterations.all[0].stories << @sample_stories[1]
     @iterations.all[2].stories << @sample_stories[3]
     @iterations.all[2].stories << @sample_stories[2]
     @iterations.all[3].stories << @sample_stories[0]
-
-#    @iterations.all[1].stories << @sample_stories[1]
   end
 
-  context "feature/bug charts" do
+  context "feature/bug/chore charts" do
+    let(:chart) {@chart_presenter.send(chart_method)}
+
     before do
-      @chart = ChartPresenter.new(@iterations.all, @sample_stories, Date.parse("2010-01-01"))
+      @chart_presenter = ChartPresenter.new(@iterations.all, @sample_stories, Date.parse("2010-01-01"))
     end
 
     shared_examples_for "a chart generation method" do
-      it "allows the chart title to be set" do
-        data_table = @chart.send(chart_type, "My Title")
-        data_table.options["title"].should == "My Title"
-      end
 
       it "allows the chart description to be set" do
         desc = "My Description"
-        chart = @chart.send(chart_type)
         chart.description.should_not == desc
         chart.description = desc
         chart.description.should == desc
       end
 
       it "and gets its description from I18n" do
-        I18n.should_receive(:t).with("chart_#{chart_type}_desc").and_return("#{chart_type} description")
-        chart = @chart.send(chart_type)
+        I18n.should_receive(:t).with("#{chart_method}_desc".to_sym).and_return("#{chart_method} description")
+        @chart_presenter.send(chart_method)
       end
     end
 
-    shared_examples_for "#accepted_story_types" do
+    describe "#accepted_story_types_chart" do
+      let(:chart_method) {"accepted_story_types_chart"}
+
+      it_should_behave_like "a chart generation method"
+
       it "produces a chart" do
-        rows = rows_for_chart(chart_type)
+        rows = chart.data_table.rows
 
-        row_values(rows, 0).should == ["Features", feature_count]
-        row_values(rows, 1).should == ["Chores", chore_count]
-        row_values(rows, 2).should == ["Bugs", bug_count]
+       def count_accepted_stories(type)
+          result = 0
+          @sample_stories.each do |story|
+            result += 1 if story.accepted? and story.story_type == type
+          end
+          result
+        end
+
+        row_values(rows, 0).should == ["Features", count_accepted_stories(ChartPresenter::STORY_TYPE_FEATURE)]
+        row_values(rows, 1).should == ["Bugs", count_accepted_stories(ChartPresenter::STORY_TYPE_BUG)]
+        row_values(rows, 2).should == ["Chores", count_accepted_stories(ChartPresenter::STORY_TYPE_CHORE)]
       end
     end
 
-    shared_examples_for "story_type_discovery_and_acceptance" do
-      it "produces an area chart for the discovery and subsequent acceptance of new story_type" do
-        rows = rows_for_chart(chart_type)
+    describe "#discovery_and_acceptance_chart" do
+      let(:chart_method) {"discovery_and_acceptance_chart"}
+
+      it_should_behave_like "a chart generation method"
+
+      it "produces an area chart for the discovery and subsequent acceptance of stories" do
+        rows = chart.data_table.rows
 
         rows.length.should == 5
-
-        filter_tooltips(rows, 0).should == ["0", 1, 0]
-        filter_tooltips(rows, 1).should == ["1", 2, 1]
-        filter_tooltips(rows, 2).should == ["2", 1, 1]
-        filter_tooltips(rows, 3).should == ["3", 2, 0]
-        filter_tooltips(rows, 4).should == ["4", 0, 0]
+                                           # I   Fc Fa Bc Ba Cc Ca
+        filter_tooltips(rows, 0).should == ["0", 1, 0, 0, 0, 0, 0]
+        filter_tooltips(rows, 1).should == ["1", 1, 1, 1, 0, 0, 0]
+        filter_tooltips(rows, 2).should == ["2", 1, 1, 0, 0, 0, 0]
+        filter_tooltips(rows, 3).should == ["3", 0, 0, 1, 0, 1, 0]
+        filter_tooltips(rows, 4).should == ["4", 0, 0, 0, 0, 0, 0]
       end
     end
 
-    shared_examples_for "story_type_acceptance_days_by_iteration" do
+    describe "#acceptance_days_by_iteration_chart" do
+      let(:chart_method) {"acceptance_days_by_iteration_chart"}
+
+      it_should_behave_like "a chart generation method"
+
       it "produces a scatter chart of accepted stories per iteration" do
-        rows = rows_for_chart(chart_type)
+        rows = chart.data_table.rows
 
         rows.length.should == 2
-
-        filter_tooltips(rows, 0).should == [1, 25]
-        filter_tooltips(rows, 1).should == [2, 6]
+                                          # I  Fd   Bd   Cd
+        filter_tooltips(rows, 0).should == [1, 25, nil, nil]
+        filter_tooltips(rows, 1).should == [2, 06, nil, nil]
       end
     end
 
-    shared_examples_for "story_type_acceptance_total_by_days" do
-      it "produces a bar chart for the time to acceptance of each story_type" do
-        rows = rows_for_chart(chart_type)
+    describe "#acceptance_by_days_chart" do
+      let(:chart_method) {"acceptance_by_days_chart"}
+
+      it_should_behave_like "a chart generation method"
+
+      it "produces a bar chart for the time to acceptance of each story" do
+        rows = chart.data_table.rows
 
         rows.length.should == 26
-
-        filter_tooltips(rows, 6).should  == ["6", 1]
-        filter_tooltips(rows, 25).should == ["25", 1]
+                                            # D    Fd Bd Cd
+        filter_tooltips(rows, 6).should  == ["6",  1, 0, 0]
+        filter_tooltips(rows, 25).should == ["25", 1, 0, 0]
       end
-    end
-
-    context "features" do
-      let(:story_type) { "feature" }
-
-      describe "#accepted_story_types" do
-        let(:chart_type) { :accepted_story_types }
-
-        it_should_behave_like "a chart generation method"
-
-        it_should_behave_like "#accepted_story_types" do
-          let(:feature_count) { 2 }
-          let(:chore_count)   { 0 }
-          let(:bug_count)     { 0 }
-        end
-      end
-
-      describe "#features_discovery_and_acceptance" do
-        let(:chart_type) { :features_discovery_and_acceptance }
-
-        it_should_behave_like "a chart generation method"
-
-        it_should_behave_like "story_type_discovery_and_acceptance"
-      end
-
-      describe "#features_acceptance_days_by_iteration" do
-        let(:chart_type) { :features_acceptance_days_by_iteration }
-
-        it_should_behave_like "a chart generation method"
-
-        it_should_behave_like "story_type_acceptance_days_by_iteration"
-      end
-
-      describe "#features_acceptance_total_by_days" do
-        let(:chart_type) { :features_acceptance_total_by_days }
-
-        it_should_behave_like "a chart generation method"
-
-        it_should_behave_like "story_type_acceptance_total_by_days"
-      end
-    end
-
-    context "bugs" do
-      let(:story_type) { "bug" }
-
-      describe "#accepted_story_types" do
-        let(:chart_type) { :accepted_story_types }
-
-        it_should_behave_like "a chart generation method"
-
-        it_should_behave_like "#accepted_story_types" do
-          let(:feature_count) { 0 }
-          let(:chore_count)   { 0 }
-          let(:bug_count)     { 2 }
-        end
-      end
-
-      describe "#bugs_discovery_and_acceptance" do
-        let(:chart_type) { :bugs_discovery_and_acceptance }
-
-        it_should_behave_like "a chart generation method"
-
-        it_should_behave_like "story_type_discovery_and_acceptance"
-      end
-
-      describe "#bugs_acceptance_days_by_iteration" do
-        let(:chart_type) { :bugs_acceptance_days_by_iteration }
-
-        it_should_behave_like "a chart generation method"
-
-        it_should_behave_like "story_type_acceptance_days_by_iteration"
-      end
-
-      describe "#bugs_acceptance_total_by_days" do
-        let(:chart_type) { :bugs_acceptance_total_by_days }
-
-        it_should_behave_like "a chart generation method"
-
-        it_should_behave_like "story_type_acceptance_total_by_days"
-      end
-    end
-
-    def rows_for_chart(method)
-      @chart.send(method, @sample_stories).data_table.rows
     end
   end
 
@@ -261,16 +194,16 @@ describe ChartPresenter do
   context "if start date and end date not provided" do
 
     it "should detect start and end date from provided stories" do
-      chart = ChartPresenter.new(@iterations.all, @sample_stories)
-      chart.start_date.should == @sample_stories[4].created_at
-      chart.end_date.should == @sample_stories[0].accepted_at
+      chart_presenter = ChartPresenter.new(@iterations.all, @sample_stories)
+      chart_presenter.start_date.should == @sample_stories[4].created_at
+      chart_presenter.end_date.should == @sample_stories[0].accepted_at
     end
 
     it "should default to current date for start and end date when no stories provided" do
       Timecop.freeze(Time.now) do
-        chart = ChartPresenter.new(@iterations.all, [])
-        chart.start_date.should == DateTime.now
-        chart.end_date.should == DateTime.now
+        chart_presenter = ChartPresenter.new(@iterations.all, [])
+        chart_presenter.start_date.should == DateTime.now
+        chart_presenter.end_date.should == DateTime.now
       end
     end
   end

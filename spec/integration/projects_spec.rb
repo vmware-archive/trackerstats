@@ -38,7 +38,7 @@ describe "Setting the API token" do
       end
 
       it "can see the project charts" do
-        (0..7).each { |i| page.should have_css("#chart_#{i}") }
+        (0..4).each { |i| page.should have_css("#chart_#{i}") }
       end
 
       it "should have valid chart descriptions" do
