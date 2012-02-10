@@ -1,9 +1,9 @@
 #sign_in
 
   #via_username_password
-    %p Sign in with your PivotalTracker username and password.
     = form_for :session, :url => sessions_path do |form|
       %fieldset
+        %legend Sign in with your PivotalTracker username and password.
         = label_tag "username", "Username or Email"
         = text_field_tag "username"
         = label_tag "password"
@@ -12,9 +12,9 @@
         = form.submit "Retrieve Projects"
 
   #via_api_token
-    %p Alternatively, sign in with your PivotalTracker API token.
     = form_for :session, :url => sessions_path do |form|
       %fieldset
+        %legend Alternatively, sign in with your PivotalTracker API token.
         = label_tag "api_token", "API Token"
         = text_field_tag "api_token"
       %fieldset.buttons

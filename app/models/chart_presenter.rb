@@ -36,7 +36,7 @@ class ChartPresenter
       CHORE   => {default: '#FF9900', additional: '#ffe64d'},
   }
 
-  VELOCITY_COLOR = 'black'
+  VELOCITY_COLOR = '#56A5EC'
 
   attr_accessor :stories, :start_date, :end_date
 

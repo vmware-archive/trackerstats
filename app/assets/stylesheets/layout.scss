@@ -41,6 +41,17 @@ header {
   overflow: hidden;
   padding-top: 20px;
 
+  label{
+    display: block;
+    margin-bottom: 0.5em;
+    margin-top: 0.5em;
+    font-weight: bold;
+  }
+
+  legend{
+    font-weight: normal;
+  }
+
   #via_username_password {
     display: block;
     float: left;
@@ -56,6 +67,7 @@ header {
     padding: 20px 50px;
   }
 }
+
 .tooltip {
     $padding: 25px;
 	display: none;

@@ -3,10 +3,10 @@ form {
 }
 
 label{
-    margin-right: 1em;
+  margin-right: 1em;
 }
 
-input[type=text], input[type=submit] {
+input[type=text], input[type=password], input[type=submit] {
   width: 300px;
   padding: 8px;
   font-size  : 1.45em;
