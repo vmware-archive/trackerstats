@@ -14,15 +14,29 @@ end
 class ChartPresenter
   DEF_CHART_WIDTH = 1000
   DEF_CHART_HEIGHT = 500
-  STORY_TYPE_FEATURE = 'feature'
-  STORY_TYPE_BUG = 'bug'
-  STORY_TYPE_CHORE = 'chore'
+  FEATURE = 'feature'
+  BUG = 'bug'
+  CHORE = 'chore'
 
-  STORY_TYPES = [
-      STORY_TYPE_FEATURE,
-      STORY_TYPE_BUG,
-      STORY_TYPE_CHORE
+  ALL_STORY_TYPES = [
+    FEATURE,
+    BUG,
+    CHORE
   ]
+
+  DEFAULT_STORY_TYPES = [
+    FEATURE,
+    BUG
+  ]
+
+  STORY_TYPE_COLORS = {
+      FEATURE => {default: '#3366CC', additional: '#80b3ff'},
+      #FEATURE => {default: '#000000', additional: '#80b3ff'},
+      BUG     => {default: '#DC3912', additional: '#ff865f'},
+      CHORE   => {default: '#FF9900', additional: '#ffe64d'},
+  }
+
+  VELOCITY_COLOR = 'black'
 
   attr_accessor :stories, :start_date, :end_date
 
@@ -39,18 +53,21 @@ class ChartPresenter
   end
 
   def accepted_story_types_chart(title = "Accepted Story Types")
+    colors = []
     data_table = GoogleVisualr::DataTable.new
     data_table.new_column('string', 'Story Type')
     data_table.new_column('number', 'Number')
 
-    STORY_TYPES.each do |type|
+    ALL_STORY_TYPES.each do |type|
+      colors << STORY_TYPE_COLORS[type][:default]
       data_table.add_row([type.pluralize.capitalize, accepted_stories_with_types([type]).size])
     end
 
     opts = {
         :width => DEF_CHART_WIDTH,
         :height => DEF_CHART_HEIGHT,
-        :title => title}
+        :title => title,
+        :colors => colors}
 
     ChartWrapper.new(
         GoogleVisualr::Interactive::PieChart.new(data_table, opts),
@@ -58,20 +75,24 @@ class ChartPresenter
     )
   end
 
-  def discovery_and_acceptance_chart
+  def discovery_and_acceptance_chart(types = ALL_STORY_TYPES)
     data = {}
+    series = []
 
     data_table = GoogleVisualr::DataTable.new
     data_table.new_column("string", "Iteration")
-    STORY_TYPES.each do |story_type|
+    types.each do |story_type|
       data_table.new_column("number", "All #{story_type.pluralize.titleize}")
       data_table.new_column("string", nil, nil, "tooltip")
+      series << {color: STORY_TYPE_COLORS[story_type][:default]}
+
       data_table.new_column("number", "Accepted  #{story_type.pluralize.titleize}")
       data_table.new_column("string", nil, nil, "tooltip")
+      series << {color: STORY_TYPE_COLORS[story_type][:additional]}
     end
 
 
-    stories_with_types_states(STORY_TYPES, nil).each do |story|
+    stories_with_types_states(types, nil).each do |story|
       nr = iteration_number(story.created_at)
       data[nr] ||= {}
       data[nr][story.story_type] ||= {created: 0, accepted: 0}
@@ -82,7 +103,7 @@ class ChartPresenter
 
     (@start_iteration_nr..@end_iteration_nr).each do |nr|
       row = [nr.to_s]
-      STORY_TYPES.each do |story_type|
+      types.each do |story_type|
         data[nr] ||= {}
         data[nr][story_type] ||= {created: 0, accepted: 0}
 
@@ -100,14 +121,7 @@ class ChartPresenter
           :height => DEF_CHART_HEIGHT,
           :title => "Story Discovery and Acceptance",
           :hAxis => {:title => 'Iteration'},
-          :series => [
-              {color: '#80b3ff'},  # light blue
-              {color: '#3366CC'},  # blue
-              {color: '#ff865f'},  # light red
-              {color: '#DC3912'},  # red
-              {color: '#ffe64d'},  # light orange
-              {color: '#FF9900'},   # orange
-          ]}
+          :series => series}
 
     ChartWrapper.new(
         GoogleVisualr::Interactive::AreaChart.new(data_table, opts),
@@ -116,25 +130,29 @@ class ChartPresenter
 
   end
 
-  def acceptance_days_by_iteration_chart
+  def acceptance_days_by_iteration_chart(types = ALL_STORY_TYPES)
 
     # Iteration # | Feature Days | Bug Days | Chore Days
     # --------------------------------------------------
     #      1            2             0           0
     #      1            0             5           0
 
+    series = []
+
     data_table = GoogleVisualr::DataTable.new
     data_table.new_column("number", "Iteration")
-    STORY_TYPES.each do |story_type|
+    types.each do |story_type|
       data_table.new_column("number", "#{story_type.titleize}")
       data_table.new_column("string", nil, nil, "tooltip")
+
+      series << {color: STORY_TYPE_COLORS[story_type][:default]}
     end
 
-    accepted_stories_with_types(STORY_TYPES).each do |story|
+    accepted_stories_with_types(types).each do |story|
       nr = iteration_number(story.created_at)
       days =  interval_in_days story.accepted_at, story.created_at
       row = [nr]
-      STORY_TYPES.each do |story_type|
+      types.each do |story_type|
          row <<  (story.story_type == story_type ? days : nil)
          row << (story.story_type == story_type ? "Iteration ##{nr}\\nDays: #{days}" : "")
       end
@@ -151,7 +169,9 @@ class ChartPresenter
             :maxValue => @end_iteration_nr,
         },
         :vAxis => {
-            :title => 'Number of Days'}}
+            :title => 'Number of Days'},
+        :series => series
+    }
 
     ChartWrapper.new(
         GoogleVisualr::Interactive::ScatterChart.new(data_table, opts),
@@ -160,24 +180,26 @@ class ChartPresenter
 
   end
 
-  def acceptance_by_days_chart
+  def acceptance_by_days_chart(types = ALL_STORY_TYPES)
 
     #  Days  | Feature #| Bug # | Chore #
     # --------------------------------------------------
     #    10       2        0        0
     #    25       0        1        0
-
+    series = []
     data_table = GoogleVisualr::DataTable.new
     data_table.new_column("string", "Days")
-    STORY_TYPES.each do |story_type|
+    types.each do |story_type|
       data_table.new_column("number", "Number of #{story_type.pluralize.titleize}")
       data_table.new_column("string", nil, nil, "tooltip")
+
+      series << {color: STORY_TYPE_COLORS[story_type][:default]}
     end
 
     data = {}
     max_days = 0
-    accepted_stories_with_types(STORY_TYPES).each do |story|
-      days = interval_in_days story.accepted_at, story.created_at
+    accepted_stories_with_types(types).each do |story|
+      days = interval_in_days(story.accepted_at, story.created_at)
       max_days = days if max_days < days
 
       data[days] ||= {}
@@ -187,7 +209,7 @@ class ChartPresenter
 
    (0..max_days).each do |days|
      row = [days.to_s]
-     STORY_TYPES.each do |story_type|
+     types.each do |story_type|
         stories_count = data[days].nil? ? 0 : (data[days][story_type] || 0)
         row << stories_count
         row << (stories_count > 0 ? "Days: #{days}\\n#{story_type.pluralize.titleize}: #{stories_count}" : "")
@@ -201,7 +223,8 @@ class ChartPresenter
         :title => "Story Duration to Acceptance By Days",
         :hAxis => {
             :title => 'Days'},
-        :vAxis => {:title => "Number of stories"}}
+        :vAxis => {:title => "Number of stories"},
+        :series => series}
 
     ChartWrapper.new(
         GoogleVisualr::Interactive::ColumnChart.new(data_table, opts),
@@ -284,7 +307,7 @@ private
     data_table.format(formatter)
 
     ChartWrapper.new(
-        GoogleVisualr::Interactive::LineChart.new(data_table, options),
+        GoogleVisualr::Interactive::LineChart.new(data_table, options.merge({:series => [:color => VELOCITY_COLOR]})),
         I18n.t(:velocity_chart_desc)
     )
   end

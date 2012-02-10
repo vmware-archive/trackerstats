@@ -13,37 +13,37 @@ describe ChartPresenter do
   before :each do
     @sample_stories = [
         double(
-            :story_type => ChartPresenter::STORY_TYPE_FEATURE,
+            :story_type => ChartPresenter::FEATURE,
             :created_at => DateTime.parse("2011-01-03 00:01:00 Z"), # iteration 1
             :current_state => "accepted",
             :accepted_at => DateTime.parse("2011-01-28 00:02:00 Z"),# ->iteration 4
             :estimate => 1,
             :accepted? => true),
         double(
-            :story_type => ChartPresenter::STORY_TYPE_BUG,
+            :story_type => ChartPresenter::BUG,
             :created_at => DateTime.parse("2011-01-08 00:01:00 Z"), # ->iteration 1
             :current_state => "started",
             :accepted? => false),
         double(
-            :story_type => ChartPresenter::STORY_TYPE_FEATURE,
+            :story_type => ChartPresenter::FEATURE,
             :created_at => DateTime.parse("2011-01-15 00:01:00 Z"), # iteration 2
             :current_state => "accepted",
             :estimate => 1,
             :accepted_at => DateTime.parse("2011-01-21 00:02:00 Z"),# ->iteration 3
             :accepted? => true),
         double(
-            :story_type => ChartPresenter::STORY_TYPE_CHORE,
+            :story_type => ChartPresenter::CHORE,
             :created_at => DateTime.parse("2011-01-22 00:01:00 Z"), # ->iteration 3
             :current_state => "started",
             :accepted? => false),
         # ICEBOX
         double(
-            :story_type => ChartPresenter::STORY_TYPE_FEATURE,
+            :story_type => ChartPresenter::FEATURE,
             :created_at => DateTime.parse("2010-01-22 00:01:00 Z"), # iteration 0
             :current_state => "unscheduled",
             :accepted? => false),
         double(
-            :story_type => ChartPresenter::STORY_TYPE_BUG,
+            :story_type => ChartPresenter::BUG,
             :created_at => DateTime.parse("2011-01-22 00:01:00 Z"), # iteration 3
             :current_state => "unscheduled",
             :accepted? => false)
@@ -120,57 +120,106 @@ describe ChartPresenter do
           result
         end
 
-        row_values(rows, 0).should == ["Features", count_accepted_stories(ChartPresenter::STORY_TYPE_FEATURE)]
-        row_values(rows, 1).should == ["Bugs", count_accepted_stories(ChartPresenter::STORY_TYPE_BUG)]
-        row_values(rows, 2).should == ["Chores", count_accepted_stories(ChartPresenter::STORY_TYPE_CHORE)]
+        row_values(rows, 0).should == ["Features", count_accepted_stories(ChartPresenter::FEATURE)]
+        row_values(rows, 1).should == ["Bugs", count_accepted_stories(ChartPresenter::BUG)]
+        row_values(rows, 2).should == ["Chores", count_accepted_stories(ChartPresenter::CHORE)]
       end
     end
 
-    describe "#discovery_and_acceptance_chart" do
-      let(:chart_method) {"discovery_and_acceptance_chart"}
+    describe "charts that can be filtered" do
 
-      it_should_behave_like "a chart generation method"
+      let(:story_filter) {ChartPresenter::ALL_STORY_TYPES}
+      let(:chart) {@chart_presenter.send(chart_method, story_filter)}
 
-      it "produces an area chart for the discovery and subsequent acceptance of stories" do
-        rows = chart.data_table.rows
+      describe "#discovery_and_acceptance_chart" do
+        let(:chart_method) {"discovery_and_acceptance_chart"}
 
-        rows.length.should == 5
-                                           # I   Fc Fa Bc Ba Cc Ca
-        filter_tooltips(rows, 0).should == ["0", 1, 0, 0, 0, 0, 0]
-        filter_tooltips(rows, 1).should == ["1", 1, 1, 1, 0, 0, 0]
-        filter_tooltips(rows, 2).should == ["2", 1, 1, 0, 0, 0, 0]
-        filter_tooltips(rows, 3).should == ["3", 0, 0, 1, 0, 1, 0]
-        filter_tooltips(rows, 4).should == ["4", 0, 0, 0, 0, 0, 0]
+        it_should_behave_like "a chart generation method"
+
+        context "filtering by story type" do
+
+          let(:story_filter) {[ChartPresenter::BUG] }
+
+          it "accepts an array of the story types to be filtered" do
+            rows = chart.data_table.rows
+
+            rows.length.should == 5
+                                               # I   Bc Ba
+            filter_tooltips(rows, 0).should == ["0", 0, 0]
+            filter_tooltips(rows, 1).should == ["1", 1, 0]
+            filter_tooltips(rows, 2).should == ["2", 0, 0]
+            filter_tooltips(rows, 3).should == ["3", 1, 0]
+            filter_tooltips(rows, 4).should == ["4", 0, 0]
+          end
+        end
+
+        it "produces an area chart for the discovery and subsequent acceptance of stories" do
+          rows = chart.data_table.rows
+
+          rows.length.should == 5
+                                             # I   Fc Fa Bc Ba Cc Ca
+          filter_tooltips(rows, 0).should == ["0", 1, 0, 0, 0, 0, 0]
+          filter_tooltips(rows, 1).should == ["1", 1, 1, 1, 0, 0, 0]
+          filter_tooltips(rows, 2).should == ["2", 1, 1, 0, 0, 0, 0]
+          filter_tooltips(rows, 3).should == ["3", 0, 0, 1, 0, 1, 0]
+          filter_tooltips(rows, 4).should == ["4", 0, 0, 0, 0, 0, 0]
+        end
       end
-    end
 
-    describe "#acceptance_days_by_iteration_chart" do
-      let(:chart_method) {"acceptance_days_by_iteration_chart"}
+      describe "#acceptance_days_by_iteration_chart" do
+        let(:chart_method) {"acceptance_days_by_iteration_chart"}
 
-      it_should_behave_like "a chart generation method"
+        it_should_behave_like "a chart generation method"
 
-      it "produces a scatter chart of accepted stories per iteration" do
-        rows = chart.data_table.rows
+        context "filtering by story type" do
+          let(:story_filter) {[ChartPresenter::FEATURE]}
 
-        rows.length.should == 2
-                                          # I  Fd   Bd   Cd
-        filter_tooltips(rows, 0).should == [1, 25, nil, nil]
-        filter_tooltips(rows, 1).should == [2, 06, nil, nil]
+          it "accepts an array of story types to filter" do
+            rows = chart.data_table.rows
+
+            rows.length.should == 2
+                                              # I  Fd
+            filter_tooltips(rows, 0).should == [1, 25]
+            filter_tooltips(rows, 1).should == [2, 06]
+          end
+        end
+
+        it "produces a scatter chart of accepted stories per iteration" do
+          rows = chart.data_table.rows
+
+          rows.length.should == 2
+                                            # I  Fd   Bd   Cd
+          filter_tooltips(rows, 0).should == [1, 25, nil, nil]
+          filter_tooltips(rows, 1).should == [2, 06, nil, nil]
+        end
       end
-    end
 
-    describe "#acceptance_by_days_chart" do
-      let(:chart_method) {"acceptance_by_days_chart"}
+      describe "#acceptance_by_days_chart" do
+        let(:chart_method) {"acceptance_by_days_chart"}
 
-      it_should_behave_like "a chart generation method"
+        it_should_behave_like "a chart generation method"
 
-      it "produces a bar chart for the time to acceptance of each story" do
-        rows = chart.data_table.rows
+        context "filtering by story type" do
+          let(:story_filter) {[ChartPresenter::FEATURE, ChartPresenter::CHORE]}
 
-        rows.length.should == 26
-                                            # D    Fd Bd Cd
-        filter_tooltips(rows, 6).should  == ["6",  1, 0, 0]
-        filter_tooltips(rows, 25).should == ["25", 1, 0, 0]
+          it "accepts an array of story types to filter" do
+            rows = chart.data_table.rows
+
+            rows.length.should == 26
+                                                # D    Fd Cd
+            filter_tooltips(rows, 6).should  == ["6",  1, 0]
+            filter_tooltips(rows, 25).should == ["25", 1, 0]
+          end
+        end
+
+        it "produces a bar chart for the time to acceptance of each story" do
+          rows = chart.data_table.rows
+
+          rows.length.should == 26
+                                              # D    Fd Bd Cd
+          filter_tooltips(rows, 6).should  == ["6",  1, 0, 0]
+          filter_tooltips(rows, 25).should == ["25", 1, 0, 0]
+        end
       end
     end
   end

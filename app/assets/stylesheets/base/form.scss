@@ -2,15 +2,12 @@ form {
   margin: 20px 0;
 }
 
-label {
-  display: block;
-  margin-top: 15px;
-  font-weight: bold;
+label{
+    margin-right: 1em;
 }
 
-input {
+input[type=text], input[type=submit] {
   width: 300px;
-  margin : 5px 0;
   padding: 8px;
   font-size  : 1.45em;
   font-weight: bold;
@@ -27,4 +24,13 @@ input {
     text-transform: uppercase;
     @include box-shadow(1px, 1px, 2px, #AAA);
   }
+}
+
+legend {
+  font-weight: bold;
+}
+
+fieldset{
+  margin-top: 1em;
+  padding-top: 0.5em;
 }
