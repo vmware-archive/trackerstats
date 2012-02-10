@@ -5,7 +5,12 @@ describe "Setting the API token" do
   let(:projects) { FactoryGirl.build_list :project, 3 }
 
   context "logged out user" do
-    it "sets the API token directly" do
+    it "should not show logout link" do
+      visit root_path
+      page.should_not have_css("a[href='#{logout_path}']")
+    end
+
+    it "should login with API key" do
       log_in_with_api_token projects
 
       current_path.should == projects_path
@@ -14,6 +19,11 @@ describe "Setting the API token" do
         page.should have_content(p.name)
       end
     end
+
+    it "should be redirected to the login page when accessing projects" do
+      visit projects_path
+      current_path.should == login_path
+    end
   end
 
   context "logged in user" do
@@ -21,8 +31,20 @@ describe "Setting the API token" do
       log_in_with_api_token projects
     end
 
+    it "can logout" do
+      page.should have_css("a[href='#{logout_path}']")
+      click_link 'Logout'
+      current_path == login_path
+      page.should have_content('Successfully logged out.')
+    end
+
     it "can visit the projects listing" do
       visit projects_path
+      current_path.should == projects_path
+    end
+
+    it "should be redirected to projects page when accessing root" do
+      visit root_path
       current_path.should == projects_path
     end
 

@@ -1,6 +1,11 @@
 require 'spec_helper'
 
 describe ProjectsController do
+  before do
+    session[TrackerApi::API_TOKEN_KEY] = "token123"
+  end
+
+
  let(:project) {
     FactoryGirl.build :project, name: "Fake Project!!", id: 12345
   }

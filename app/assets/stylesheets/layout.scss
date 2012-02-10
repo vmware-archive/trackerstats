@@ -12,6 +12,7 @@ footer {
 .container {
   width: 1000px;
   margin: 0 auto;
+  position: relative;
 }
 
 div.chart-container {
@@ -86,4 +87,21 @@ header {
 .hasDatepicker, .btn{
    position: relative;
    z-index: 1;
+}
+
+div.notice{
+    text-align: center;
+    color: green;
+    background: #FFE87C;
+    font-weight: bold;
+    padding: 0.5em;
+    border: 1px solid #CDB64A;
+    margin: 0.5em;
+}
+
+a.logout{
+   position: absolute;
+   right: 0;
+   top: 0;
+   font-size: x-small;
 }

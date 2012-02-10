@@ -1,4 +1,5 @@
 class SessionsController < ApplicationController
+  skip_before_filter :authorize
   def new; end
 
   def create
@@ -15,5 +16,10 @@ class SessionsController < ApplicationController
       flash[:alert] = "We were not able to authenticate you lah."
       redirect_to :root
     end
+  end
+
+  def destroy
+    session[TrackerApi::API_TOKEN_KEY] = nil
+    redirect_to login_path, notice: 'Successfully logged out.'
   end
 end

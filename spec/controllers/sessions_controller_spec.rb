@@ -1,6 +1,7 @@
 require 'spec_helper'
 
 describe SessionsController do
+
   describe "#create" do
     def do_request
       post :create, params
@@ -47,4 +48,14 @@ describe SessionsController do
       end
     end
   end
+
+  describe "#destroy" do
+    it "should remove the api token from the session on logout and redirect to root" do
+      session[TrackerApi::API_TOKEN_KEY] = 'API_TOKEN_SET'
+      delete :destroy
+      session[TrackerApi::API_TOKEN_KEY].should be_nil
+      response.should redirect_to login_path
+    end
+  end
+
 end

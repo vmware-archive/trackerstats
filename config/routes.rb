@@ -1,8 +1,13 @@
 Tracker::Application.routes.draw do
 
-  root :to => "application#index"
+  root :to => redirect('/projects')
 
-  resources :sessions, :only => [:new, :create]
+  controller :sessions do
+    get 'login' => :new
+    post 'login' => :create
+    delete 'logout' => :destroy
+  end
+
   resources :projects, :only => [:index, :show]
 
   # The priority is based upon order of creation:

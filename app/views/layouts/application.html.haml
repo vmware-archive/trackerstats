@@ -7,8 +7,15 @@
     %script{src: 'http://www.google.com/jsapi'}
     = csrf_meta_tags
   %body
-    = render 'header'
+    %header
+      .container
+        %h1= link_to "Tracker Stats", projects_path
+        - if authorized?
+          = link_to "Logout", logout_path, method: :delete, class: "logout"
     #content
       .container
-        = flash[:alert]
+        - if flash[:notice]
+          %div.notice= flash[:notice]
+        - if flash[:alert]
+          %div.alert= flash[:alert]
         = yield
