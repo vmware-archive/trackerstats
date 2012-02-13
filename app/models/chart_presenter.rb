@@ -165,6 +165,7 @@ class ChartPresenter
             :title => 'Iteration',
             :minValue => @start_iteration_nr,
             :maxValue => @end_iteration_nr,
+            :format => '#'
         },
         :vAxis => {
             :title => 'Number of Days'},
