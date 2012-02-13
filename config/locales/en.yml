@@ -4,6 +4,6 @@
 en:
   accepted_story_types_chart_desc: "Shows breakdown of story types in the project."
   discovery_and_acceptance_chart_desc: "Shows how many stories discovered during an iteration were finally accepted."
-  acceptance_days_by_iteration_chart_desc: "Shows amount of days between story discovery to its acceptance by iteration."
+  acceptance_days_by_iteration_chart_desc: "Shows number of days between when stories are discovered to when they are finally accepted."
   acceptance_by_days_chart_desc: "Shows number of stories that took a particular duration (in days) to be accepted."
   velocity_chart_desc: "Shows total amount of story points accepted per iteration."
