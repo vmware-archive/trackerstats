@@ -6,4 +6,12 @@ class Iteration < TrackerResource
   def stories
     Story.filter_stories super
   end
+
+  def start_date
+    @start_date ||= start.to_date
+  end
+
+  def finish_date
+    @finish_date ||= finish.to_date
+  end
 end

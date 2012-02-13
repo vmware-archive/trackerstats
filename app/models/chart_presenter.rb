@@ -1,5 +1,6 @@
 class ChartWrapper
   attr_accessor :description
+  attr_reader :chart
 
   def initialize(chart, description)
     self.description = description
@@ -36,16 +37,16 @@ class ChartPresenter
     @iterations = iterations
     @stories = stories
 
-    @start_date = start_date ? start_date.to_datetime : first_active_story_date
-    @end_date = end_date ? end_date.to_datetime : last_active_story_date
+    @start_date = start_date ? start_date.to_date : first_active_story_date
+    @end_date = end_date ? end_date.to_date : last_active_story_date
 
     @start_iteration_nr = iteration_number @start_date
-    @end_iteration_nr = iteration_number @end_date
+    @end_iteration_nr = iteration_number @end_date - 1.day
   end
 
   def active_iterations
     @active_iterations ||= @iterations.select do |it|
-      not (it.finish < first_active_story_date) || (it.start >= last_active_story_date)
+      not (it.finish_date < first_active_story_date) || (it.start_date >= last_active_story_date)
     end
   end
 
@@ -236,6 +237,7 @@ class ChartPresenter
     end_iteration_nr = iteration_number last_active_story_date
 
     velocity_chart(start_iteration_nr, end_iteration_nr, {
+        includeZeroIteration: true,
         theme: 'maximized',
         title: nil,
         legend: {position: 'none'},
@@ -267,17 +269,17 @@ private
 
   def first_active_story_date
     @first_active_story_date ||= if not @stories.empty?
-        @stories.map { |story| story.created_at }.sort.first
+        @stories.map { |story| story.created_at }.sort.first.to_date
       else
-        DateTime.now
+        Date.today
       end
   end
 
   def last_active_story_date
     @last_active_story_date ||= if not @stories.empty?
-        @stories.map { |story| story.accepted? ? story.accepted_at : story.created_at }.sort.last
+        @stories.map { |story| story.accepted? ? story.accepted_at : story.created_at }.sort.last.to_date
       else
-        DateTime.now
+        Date.today
       end
   end
 
@@ -286,6 +288,10 @@ private
     data_table.new_column("string", "Iteration")
     data_table.new_column("number", "Points accepted")
     data_table.new_column('string', nil, nil, 'tooltip')
+
+    if options.delete(:includeZeroIteration)
+      data_table.add_row(["0", 0, ""])
+    end
 
     @iterations.each do |iteration|
       next if iteration.number < first_iteration_nr or iteration.number > last_iteration_nr
@@ -304,7 +310,7 @@ private
     data_table.format(formatter)
 
     ChartWrapper.new(
-        GoogleVisualr::Interactive::LineChart.new(data_table, options.merge({:series => [:color => VELOCITY_COLOR]})),
+        GoogleVisualr::Interactive::AreaChart.new(data_table, options.merge({:series => [:color => VELOCITY_COLOR]})),
         I18n.t(:velocity_chart_desc)
     )
   end
@@ -321,10 +327,10 @@ private
   end
 
   def iteration_number(timestamp)
-    date = timestamp.to_datetime
-    return 0 if @iterations.empty? or @iterations.first.start > date
+    date = timestamp.to_date
+    return 0 if @iterations.empty? or @iterations.first.start_date > date
     @iterations.each do |it|
-      return it.number if it.start <= date && it.finish > date
+      return it.number if it.start_date <= date && it.finish_date > date
     end
     @iterations.last.number
   end

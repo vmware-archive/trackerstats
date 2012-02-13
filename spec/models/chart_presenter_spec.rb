@@ -52,39 +52,38 @@ describe ChartPresenter do
     stories = double("project stories")
     stories.stub(:all).and_return(@sample_stories)
 
-    @iterations = double("iterations")
-    @iterations.stub(:all).and_return([
+    @iterations = [
       double(
         :number => 1,
-        :start => Date.parse("2011-01-03"),
-        :finish => Date.parse("2011-01-10"),
+        :start_date => Date.parse("2011-01-03"),
+        :finish_date => Date.parse("2011-01-10"),
         :stories => []),
       double(
         :number => 2,
-        :start => Date.parse("2011-01-10"),
-        :finish => Date.parse("2011-01-17"),
+        :start_date => Date.parse("2011-01-10"),
+        :finish_date => Date.parse("2011-01-17"),
         :stories => []),
       double(
         :number => 3,
-        :start => Date.parse("2011-01-17"),
-        :finish => Date.parse("2011-01-24"),
+        :start_date => Date.parse("2011-01-17"),
+        :finish_date => Date.parse("2011-01-24"),
         :stories => []),
       double(
         :number => 4,
-        :start => Date.parse("2011-01-24"),
-        :finish => Date.parse("2011-01-31"),
+        :start_date => Date.parse("2011-01-24"),
+        :finish_date => Date.parse("2011-01-31"),
         :stories => []),
-      ])
+      ]
 
-    @iterations.all[0].stories << @sample_stories[1]
-    @iterations.all[2].stories << @sample_stories[3]
-    @iterations.all[2].stories << @sample_stories[2]
-    @iterations.all[3].stories << @sample_stories[0]
+    @iterations[0].stories << @sample_stories[1]
+    @iterations[2].stories << @sample_stories[3]
+    @iterations[2].stories << @sample_stories[2]
+    @iterations[3].stories << @sample_stories[0]
   end
 
 
   describe "active iterations" do
-    let(:iterations) {  @iterations.all }
+    let(:iterations) {  @iterations }
 
     it "should return the list of iterations within the active stories date range" do
       expected_first_iteration_nr = iterations.first.number
@@ -94,7 +93,7 @@ describe ChartPresenter do
       chart_presenter = ChartPresenter.new(iterations, @sample_stories)
       active_iterations = chart_presenter.active_iterations
 
-      active_iterations.length.should == @iterations.all.length
+      active_iterations.length.should == @iterations.length
 
       active_iterations.first.number.should == expected_first_iteration_nr
       active_iterations.last.number.should == expected_last_iteration_nr
@@ -150,7 +149,7 @@ describe ChartPresenter do
     let(:chart) {@chart_presenter.send(chart_method)}
 
     before do
-      @chart_presenter = ChartPresenter.new(@iterations.all, @sample_stories, Date.parse("2010-01-01"))
+      @chart_presenter = ChartPresenter.new(@iterations, @sample_stories, Date.parse("2010-01-01"))
     end
 
     shared_examples_for "a chart generation method" do
@@ -290,33 +289,50 @@ describe ChartPresenter do
 
   describe "#whole_project_velocity_chart" do
     it "should detect first and last iteration with any activity for the chart" do
-      @chart = ChartPresenter.new(@iterations.all, @sample_stories)
-      rows = @chart.whole_project_velocity_chart().data_table.rows
+      chp = ChartPresenter.new(@iterations, @sample_stories)
+      chart = chp.whole_project_velocity_chart
+
+      chart.chart.instance_of?(GoogleVisualr::Interactive::AreaChart).should == true
+
+      rows = chart.data_table.rows
 
       rows.should_not be_nil
-      rows.length.should == 4
+      rows.length.should == 5
 
-      filter_tooltips(rows, 0).should == [@iterations.all[0].number.to_s, 0]
-      filter_tooltips(rows, 1).should == [@iterations.all[1].number.to_s, 0]
-      filter_tooltips(rows, 2).should == [@iterations.all[2].number.to_s, 1]
-      filter_tooltips(rows, 3).should == [@iterations.all[3].number.to_s, 1]
+      filter_tooltips(rows, 0).should == ["0", 0]
+      filter_tooltips(rows, 1).should == [@iterations[0].number.to_s, 0]
+      filter_tooltips(rows, 2).should == [@iterations[1].number.to_s, 0]
+      filter_tooltips(rows, 3).should == [@iterations[2].number.to_s, 1]
+      filter_tooltips(rows, 4).should == [@iterations[3].number.to_s, 1]
     end
   end
 
+  describe "#date_range_velocity_chart" do
+    it "should produce correct chart" do
+      chp = ChartPresenter.new(@iterations, @sample_stories, @iterations[1].start_date, @iterations[2].finish_date)
+      rows = chp.date_range_velocity_chart.data_table.rows
+
+      rows.should_not be_nil
+      rows.length.should == 2
+
+      filter_tooltips(rows, 0).should == [@iterations[1].number.to_s, 0]
+      filter_tooltips(rows, 1).should == [@iterations[2].number.to_s, 1]
+    end
+  end
 
   context "if start date and end date not provided" do
 
     it "should detect start and end date from provided stories" do
-      chart_presenter = ChartPresenter.new(@iterations.all, @sample_stories)
-      chart_presenter.start_date.should == @sample_stories[4].created_at
-      chart_presenter.end_date.should == @sample_stories[0].accepted_at
+      chart_presenter = ChartPresenter.new(@iterations, @sample_stories)
+      chart_presenter.start_date.should == @sample_stories[4].created_at.to_date
+      chart_presenter.end_date.should == @sample_stories[0].accepted_at.to_date
     end
 
     it "should default to current date for start and end date when no stories provided" do
       Timecop.freeze(Time.now) do
-        chart_presenter = ChartPresenter.new(@iterations.all, [])
-        chart_presenter.start_date.should == DateTime.now
-        chart_presenter.end_date.should == DateTime.now
+        chart_presenter = ChartPresenter.new(@iterations, [])
+        chart_presenter.start_date.should == Date.today
+        chart_presenter.end_date.should == Date.today
       end
     end
   end
