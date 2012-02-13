@@ -103,7 +103,7 @@ describe ProjectsController do
       project.stub(:stories) { stories }
       project.stub(:iterations) { iterations }
 
-      get :show, { :id => project.id, :start_date => '2011-01-01', ChartPresenter::FEATURE => '1'}
+      get :show, { :id => project.id, :start_date => '2011-01-01', Story::FEATURE => '1'}
 
       iterations.length.should >= 0
 

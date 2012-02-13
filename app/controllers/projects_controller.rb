@@ -7,10 +7,11 @@ class ProjectsController < ApplicationController
   end
 
   def show
-    @stories = @project.stories
-    @iterations = @project.iterations
+    stories = @project.stories
+    iterations = @project.iterations
 
-    chart_presenter = ChartPresenter.new(@iterations, @stories, @start_date, @end_date)
+    chart_presenter = ChartPresenter.new(iterations, stories, @start_date, @end_date)
+    @active_iterations = chart_presenter.active_iterations
 
     @velocity_range_chart = chart_presenter.whole_project_velocity_chart()
     @velocity_range_chart.description = ""
@@ -44,7 +45,7 @@ class ProjectsController < ApplicationController
     @end_date = Date.parse(params[:end_date]) unless params[:end_date].blank?
 
     @story_filter = []
-    ChartPresenter::ALL_STORY_TYPES.each do |type|
+    Story::ALL_STORY_TYPES.each do |type|
       if not params[type].blank?
         @story_filter << type
       end

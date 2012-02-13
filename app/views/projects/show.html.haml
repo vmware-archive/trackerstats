@@ -11,14 +11,14 @@
     = text_field_tag :end_date, params[:end_date], :placeholder => "End YYYY/MM/DD"
   %fieldset
     %legend Select story types
-    - ChartPresenter::ALL_STORY_TYPES.each do |story_type|
+    - Story::ALL_STORY_TYPES.each do |story_type|
       %label #{story_type.pluralize.titleize} #{check_box_tag story_type, '1', params[story_type], class: 'story_type_filter_cbx'}
 
   %fieldset.buttons
     = form.submit "Refresh Charts", :class => "btn"
 
 - iterations = [""]
-- iterations += @iterations.map{|it| it.start.strftime('%Y/%m/%d')} unless @iterations.nil?
+- iterations += @active_iterations.map{|it| it.start.strftime('%Y/%m/%d')} unless @active_iterations.nil?
 
 :javascript
   $(function() {

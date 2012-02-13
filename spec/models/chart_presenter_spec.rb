@@ -13,37 +13,37 @@ describe ChartPresenter do
   before :each do
     @sample_stories = [
         double(
-            :story_type => ChartPresenter::FEATURE,
+            :story_type => Story::FEATURE,
             :created_at => DateTime.parse("2011-01-03 00:01:00 Z"), # iteration 1
             :current_state => "accepted",
             :accepted_at => DateTime.parse("2011-01-28 00:02:00 Z"),# ->iteration 4
             :estimate => 1,
             :accepted? => true),
         double(
-            :story_type => ChartPresenter::BUG,
+            :story_type => Story::BUG,
             :created_at => DateTime.parse("2011-01-08 00:01:00 Z"), # ->iteration 1
             :current_state => "started",
             :accepted? => false),
         double(
-            :story_type => ChartPresenter::FEATURE,
+            :story_type => Story::FEATURE,
             :created_at => DateTime.parse("2011-01-15 00:01:00 Z"), # iteration 2
             :current_state => "accepted",
             :estimate => 1,
             :accepted_at => DateTime.parse("2011-01-21 00:02:00 Z"),# ->iteration 3
             :accepted? => true),
         double(
-            :story_type => ChartPresenter::CHORE,
+            :story_type => Story::CHORE,
             :created_at => DateTime.parse("2011-01-22 00:01:00 Z"), # ->iteration 3
             :current_state => "started",
             :accepted? => false),
         # ICEBOX
         double(
-            :story_type => ChartPresenter::FEATURE,
+            :story_type => Story::FEATURE,
             :created_at => DateTime.parse("2010-01-22 00:01:00 Z"), # iteration 0
             :current_state => "unscheduled",
             :accepted? => false),
         double(
-            :story_type => ChartPresenter::BUG,
+            :story_type => Story::BUG,
             :created_at => DateTime.parse("2011-01-22 00:01:00 Z"), # iteration 3
             :current_state => "unscheduled",
             :accepted? => false)
@@ -80,6 +80,70 @@ describe ChartPresenter do
     @iterations.all[2].stories << @sample_stories[3]
     @iterations.all[2].stories << @sample_stories[2]
     @iterations.all[3].stories << @sample_stories[0]
+  end
+
+
+  describe "active iterations" do
+    let(:iterations) {  @iterations.all }
+
+    it "should return the list of iterations within the active stories date range" do
+      expected_first_iteration_nr = iterations.first.number
+      expected_last_iteration_nr = iterations.last.number
+
+
+      chart_presenter = ChartPresenter.new(iterations, @sample_stories)
+      active_iterations = chart_presenter.active_iterations
+
+      active_iterations.length.should == @iterations.all.length
+
+      active_iterations.first.number.should == expected_first_iteration_nr
+      active_iterations.last.number.should == expected_last_iteration_nr
+    end
+
+    it "should return only one iteration for given date range" do
+      # Case #2
+      chart_presenter = ChartPresenter.new(iterations, @sample_stories)
+      chart_presenter.stub(first_active_story_date: DateTime.parse("2011-01-17 00:01:00 Z") )
+      chart_presenter.stub(last_active_story_date: DateTime.parse("2011-01-23 00:02:00 Z") )
+      active_iterations = chart_presenter.active_iterations
+
+      active_iterations.length.should == 1
+
+      active_iterations.first.number.should == 3
+      active_iterations.last.number.should == 3
+    end
+
+    it "should return zero iterations for active date range before the first iteration" do
+      # Case #3
+      chart_presenter = ChartPresenter.new(iterations, @sample_stories)
+      chart_presenter.stub(first_active_story_date: DateTime.parse("2010-01-17 00:01:00 Z") )
+      chart_presenter.stub(last_active_story_date: DateTime.parse("2010-01-23 00:02:00 Z") )
+      active_iterations = chart_presenter.active_iterations
+
+      active_iterations.length.should == 0
+    end
+
+    it "should return zero iterations for active date range after the last iteration" do
+      # Case #4
+      chart_presenter = ChartPresenter.new(iterations, @sample_stories)
+      chart_presenter.stub(first_active_story_date: DateTime.parse("2012-01-17 00:01:00 Z") )
+      chart_presenter.stub(last_active_story_date: DateTime.parse("2012-01-23 00:02:00 Z") )
+      active_iterations = chart_presenter.active_iterations
+
+      active_iterations.length.should == 0
+    end
+
+    it "should return two iteration for active date range that is matching the iterations start and end date" do
+      chart_presenter = ChartPresenter.new(iterations, @sample_stories)
+      chart_presenter.stub(first_active_story_date: DateTime.parse("2011-01-10 00:00:01 Z") )
+      chart_presenter.stub(last_active_story_date: DateTime.parse("2011-01-23 23:59:59 Z") )
+      active_iterations = chart_presenter.active_iterations
+
+      active_iterations.length.should == 2
+
+      active_iterations.first.number.should == 2
+      active_iterations.last.number.should == 3
+    end
   end
 
   context "feature/bug/chore charts" do
@@ -120,15 +184,15 @@ describe ChartPresenter do
           result
         end
 
-        row_values(rows, 0).should == ["Features", count_accepted_stories(ChartPresenter::FEATURE)]
-        row_values(rows, 1).should == ["Bugs", count_accepted_stories(ChartPresenter::BUG)]
-        row_values(rows, 2).should == ["Chores", count_accepted_stories(ChartPresenter::CHORE)]
+        row_values(rows, 0).should == ["Features", count_accepted_stories(Story::FEATURE)]
+        row_values(rows, 1).should == ["Bugs", count_accepted_stories(Story::BUG)]
+        row_values(rows, 2).should == ["Chores", count_accepted_stories(Story::CHORE)]
       end
     end
 
     describe "charts that can be filtered" do
 
-      let(:story_filter) {ChartPresenter::ALL_STORY_TYPES}
+      let(:story_filter) {Story::ALL_STORY_TYPES}
       let(:chart) {@chart_presenter.send(chart_method, story_filter)}
 
       describe "#discovery_and_acceptance_chart" do
@@ -138,7 +202,7 @@ describe ChartPresenter do
 
         context "filtering by story type" do
 
-          let(:story_filter) {[ChartPresenter::BUG] }
+          let(:story_filter) {[Story::BUG] }
 
           it "accepts an array of the story types to be filtered" do
             rows = chart.data_table.rows
@@ -172,7 +236,7 @@ describe ChartPresenter do
         it_should_behave_like "a chart generation method"
 
         context "filtering by story type" do
-          let(:story_filter) {[ChartPresenter::FEATURE]}
+          let(:story_filter) {[Story::FEATURE]}
 
           it "accepts an array of story types to filter" do
             rows = chart.data_table.rows
@@ -200,7 +264,7 @@ describe ChartPresenter do
         it_should_behave_like "a chart generation method"
 
         context "filtering by story type" do
-          let(:story_filter) {[ChartPresenter::FEATURE, ChartPresenter::CHORE]}
+          let(:story_filter) {[Story::FEATURE, Story::CHORE]}
 
           it "accepts an array of story types to filter" do
             rows = chart.data_table.rows

@@ -14,26 +14,17 @@ end
 class ChartPresenter
   DEF_CHART_WIDTH = 1000
   DEF_CHART_HEIGHT = 500
-  FEATURE = 'feature'
-  BUG = 'bug'
-  CHORE = 'chore'
-
-  ALL_STORY_TYPES = [
-    FEATURE,
-    BUG,
-    CHORE
-  ]
 
   DEFAULT_STORY_TYPES = [
-    FEATURE,
-    BUG
+    Story::FEATURE,
+    Story::BUG
   ]
 
   STORY_TYPE_COLORS = {
-      FEATURE => {default: '#3366CC', additional: '#80b3ff'},
+      Story::FEATURE => {default: '#3366CC', additional: '#80b3ff'},
       #FEATURE => {default: '#000000', additional: '#80b3ff'},
-      BUG     => {default: '#DC3912', additional: '#ff865f'},
-      CHORE   => {default: '#FF9900', additional: '#ffe64d'},
+      Story::BUG     => {default: '#DC3912', additional: '#ff865f'},
+      Story::CHORE   => {default: '#FF9900', additional: '#ffe64d'},
   }
 
   VELOCITY_COLOR = '#56A5EC'
@@ -52,13 +43,19 @@ class ChartPresenter
     @end_iteration_nr = iteration_number @end_date
   end
 
+  def active_iterations
+    @active_iterations ||= @iterations.select do |it|
+      not (it.finish < first_active_story_date) || (it.start >= last_active_story_date)
+    end
+  end
+
   def accepted_story_types_chart(title = "Accepted Story Types")
     colors = []
     data_table = GoogleVisualr::DataTable.new
     data_table.new_column('string', 'Story Type')
     data_table.new_column('number', 'Number')
 
-    ALL_STORY_TYPES.each do |type|
+    Story::ALL_STORY_TYPES.each do |type|
       colors << STORY_TYPE_COLORS[type][:default]
       data_table.add_row([type.pluralize.capitalize, accepted_stories_with_types([type]).size])
     end
@@ -75,7 +72,7 @@ class ChartPresenter
     )
   end
 
-  def discovery_and_acceptance_chart(types = ALL_STORY_TYPES)
+  def discovery_and_acceptance_chart(types = Story::ALL_STORY_TYPES)
     data = {}
     series = []
 
@@ -130,7 +127,7 @@ class ChartPresenter
 
   end
 
-  def acceptance_days_by_iteration_chart(types = ALL_STORY_TYPES)
+  def acceptance_days_by_iteration_chart(types = Story::ALL_STORY_TYPES)
 
     # Iteration # | Feature Days | Bug Days | Chore Days
     # --------------------------------------------------
@@ -180,7 +177,7 @@ class ChartPresenter
 
   end
 
-  def acceptance_by_days_chart(types = ALL_STORY_TYPES)
+  def acceptance_by_days_chart(types = Story::ALL_STORY_TYPES)
 
     #  Days  | Feature #| Bug # | Chore #
     # --------------------------------------------------
@@ -269,19 +266,19 @@ class ChartPresenter
 private
 
   def first_active_story_date
-    if not @stories.empty?
-      @stories.map { |story| story.created_at }.sort.first
-    else
-      DateTime.now
-    end
+    @first_active_story_date ||= if not @stories.empty?
+        @stories.map { |story| story.created_at }.sort.first
+      else
+        DateTime.now
+      end
   end
 
   def last_active_story_date
-    if not @stories.empty?
-      @stories.map { |story| story.accepted? ? story.accepted_at : story.created_at }.sort.last
-    else
-      DateTime.now
-    end
+    @last_active_story_date ||= if not @stories.empty?
+        @stories.map { |story| story.accepted? ? story.accepted_at : story.created_at }.sort.last
+      else
+        DateTime.now
+      end
   end
 
   def velocity_chart(first_iteration_nr, last_iteration_nr, options = {})
