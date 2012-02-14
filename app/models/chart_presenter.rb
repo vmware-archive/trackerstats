@@ -30,6 +30,10 @@ class ChartPresenter
 
   VELOCITY_COLOR = '#56A5EC'
 
+  MIN_SCATTER_CHART_GRID_LINES = 2
+  MAX_SCATTER_CHART_GRID_LINES = 50
+
+
   attr_accessor :stories, :start_date, :end_date
 
 
@@ -171,6 +175,12 @@ class ChartPresenter
             :title => 'Number of Days'},
         :series => series
     }
+
+    num_visible_iterations = @end_iteration_nr - @start_iteration_nr + 1
+
+    grid_lines = [MIN_SCATTER_CHART_GRID_LINES, [MAX_SCATTER_CHART_GRID_LINES, num_visible_iterations].min].max
+
+    opts[:hAxis][:gridlines] = {:count => grid_lines} if grid_lines
 
     ChartWrapper.new(
         GoogleVisualr::Interactive::ScatterChart.new(data_table, opts),
