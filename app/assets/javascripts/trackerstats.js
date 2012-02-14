@@ -39,22 +39,24 @@ TrackerStats.setup_iterations_slider = function(slider_sel, start_sel, finish_se
 
     date = $(start_sel).val();
     if (date !== ""){
-        for (i = 0; i < iterations.length; i++){
-            if (iterations[i] <= date && ((i === iterations.length-1) || (date < iterations[i+1]))) {
+        i = iterations.length;
+        while(i--){
+            if (iterations[i] <= date){
                 start_val = i;
                 break;
             }
-       }
+        }
     }
 
     date = $(finish_sel).val();
     if (date !== ""){
-        for (i = 0; i < iterations.length-1; i++){
-            if (iterations[i] < date && date <= iterations[i+1]){
+        i = iterations.length;
+        while(i--){
+            if (iterations[i] < date){
                 end_val = i;
                 break;
             }
-       }
+        }
     }
 
     $(slider_sel).slider({
