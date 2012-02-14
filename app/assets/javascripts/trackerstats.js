@@ -1,3 +1,4 @@
+/*jslint sloppy: true, white: true, plusplus: true, maxerr: 50, indent: 4 */
 var TrackerStats;
 TrackerStats = {
     props: {},
@@ -38,11 +39,8 @@ TrackerStats.setup_iterations_slider = function(slider_sel, start_sel, finish_se
 
     date = $(start_sel).val();
     if (date !== ""){
-        for (i = 0; i < iterations.length-1; i++){
-            if (!iterations[i] || !iterations[i+1]) {
-                continue;
-            }
-            if (iterations[i] <= date && date < iterations[i+1]) {
+        for (i = 0; i < iterations.length; i++){
+            if (iterations[i] <= date && ((i === iterations.length-1) || (date < iterations[i+1]))) {
                 start_val = i;
                 break;
             }
@@ -52,9 +50,6 @@ TrackerStats.setup_iterations_slider = function(slider_sel, start_sel, finish_se
     date = $(finish_sel).val();
     if (date !== ""){
         for (i = 0; i < iterations.length-1; i++){
-            if (!iterations[i] || !iterations[i+1]){
-                continue;
-            }
             if (iterations[i] < date && date <= iterations[i+1]){
                 end_val = i;
                 break;

@@ -93,6 +93,39 @@ describe "Setting the API token" do
 
     end
 
+    describe  "iteration range slider" do
+
+      let(:project) { projects.first }
+
+      before do
+        Project.stub(:find => project)
+        project.stub(:iterations).and_return(FactoryGirl.build_list :iteration_with_stories, 5)
+        stories = []
+
+        project.iterations.each do |it|
+          stories += it.stories
+        end
+
+        project.stub(:stories).and_return(stories)
+      end
+
+      it "should correctly render after post when both scrubbers are set at the minimum value", js: true do
+        visit project_path(project.id)
+
+        page.evaluate_script("(function(){$('#iteration-range').slider('option', 'values', [0, 0]);return true;})()")
+        click_button "Refresh Charts"
+        page.evaluate_script("$('#iteration-range').slider('option', 'values')").should == [0, 0]
+      end
+
+      it "should correctly render after post when both scrubbers are set at the maximum value", js: true do
+        visit project_path(project.id)
+
+        page.evaluate_script("(function(){$('#iteration-range').slider('option', 'values', [5, 5]);return true;})()")
+        click_button "Refresh Charts"
+        page.evaluate_script("$('#iteration-range').slider('option', 'values')").should == [5, 5]
+      end
+    end
+
 
   end
 

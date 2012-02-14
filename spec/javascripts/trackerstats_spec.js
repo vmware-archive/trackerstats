@@ -103,6 +103,27 @@ describe("TrackerStats", function() {
             expect(slider.slider("values", 1)).toBe(2, "finish slider is incorrect");
         });
 
+        it("should render correctly for the first iteration range", function(){
+            $(selector(START_DATE_ID)).val(iterations[0]);
+            $(selector(END_DATE_ID)).val(iterations[1]);
+
+            TrackerStats.setup_iterations_slider(selector(SLIDER_ID),
+                selector(START_DATE_ID), selector(END_DATE_ID));
+
+            expect(slider.slider("values", 0)).toBe(0, "start slider is incorrect");
+            expect(slider.slider("values", 1)).toBe(0, "finish slider is incorrect");
+        });
+
+        it("should render correctly for the last iteration range", function(){
+            $(selector(START_DATE_ID)).val(iterations[iterations.length - 1]);
+            $(selector(END_DATE_ID)).val("");
+
+            TrackerStats.setup_iterations_slider(selector(SLIDER_ID),
+                selector(START_DATE_ID), selector(END_DATE_ID));
+
+            expect(slider.slider("values", 0)).toBe(iterations.length - 1, "start slider is incorrect");
+            expect(slider.slider("values", 1)).toBe(iterations.length - 1, "finish slider is incorrect");
+        });
     });
 
 });
