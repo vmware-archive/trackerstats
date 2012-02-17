@@ -2,10 +2,12 @@ require 'spec_helper'
 
 describe TrackerResource do
   describe "#find" do
-    let(:cache_key) { "TrackerResource-123456,[:all]" }
+    let(:api_token)   { "123456" }
+    let(:session_key) { "#{api_token}-7890" }
+    let(:cache_key) { "TrackerResource-#{session_key}-[:all]" }
 
     before do
-      TrackerApi.token     = "123456"
+      TrackerResource.init_session(api_token, session_key)
       TrackerResource.site = "http://www.google.com"
     end
 
@@ -16,7 +18,7 @@ describe TrackerResource do
       result.should == "value"
     end
 
-    it "calls super" do
+    it "misses cache and does API call" do
       Rails.cache.delete(cache_key)
 
       ActiveResource::Base.should_receive(:find)

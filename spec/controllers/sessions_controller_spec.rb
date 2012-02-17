@@ -21,7 +21,8 @@ describe SessionsController do
 
         do_request
 
-        session[:api_token].should == api_token
+        session[TrackerApi::API_TOKEN_KEY].should be_an_instance_of(TrackerApi)
+        session[TrackerApi::API_TOKEN_KEY].api_token.should == api_token
         response.should redirect_to projects_path
       end
     end
@@ -32,7 +33,8 @@ describe SessionsController do
       it "sessionizes API Token" do
         do_request
 
-        session[:api_token].should == api_token
+        session[TrackerApi::API_TOKEN_KEY].should be_an_instance_of(TrackerApi)
+        session[TrackerApi::API_TOKEN_KEY].api_token.should == api_token
         response.should redirect_to projects_path
       end
     end
@@ -50,12 +52,18 @@ describe SessionsController do
   end
 
   describe "#destroy" do
-    it "should remove the api token from the session on logout and redirect to root" do
-      session[TrackerApi::API_TOKEN_KEY] = 'API_TOKEN_SET'
+    let(:api_token) { "12345"}
+
+    before do
+      TrackerApi.login(api_token: api_token)
+      session[TrackerApi::API_TOKEN_KEY] = api_token
+    end
+
+    it "clears session and TrackerApi on logout and redirect to root" do
       delete :destroy
-      session[TrackerApi::API_TOKEN_KEY].should be_nil
+
+      session.should be_blank
       response.should redirect_to login_path
     end
   end
-
 end

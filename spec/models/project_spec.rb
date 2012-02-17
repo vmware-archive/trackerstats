@@ -2,11 +2,13 @@ require 'spec_helper'
 
 describe "Project" do
 
+  let(:api_token) { "fake_token" }
   let(:project) { FactoryGirl.build :project }
-  let(:headers) { { 'X-TrackerToken' => TrackerApi.token} }
+  let(:headers) { { 'X-TrackerToken' => api_token} }
 
   before do
-    TrackerApi.token = "fake_token"
+    Rails.cache.clear
+    TrackerResource.init_session(api_token, "#{api_token}-123")
   end
 
   it "uses proper API for fetching projects"  do

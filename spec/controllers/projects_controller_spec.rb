@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe ProjectsController do
   before do
-    session[TrackerApi::API_TOKEN_KEY] = "token123"
+    session[TrackerApi::API_TOKEN_KEY] = TrackerApi.login(api_token: "token123")
   end
 
 
@@ -36,16 +36,6 @@ describe ProjectsController do
       response.body.should include("Fake Project!!")
       response.body.should include("/projects/12345")
     end
-
-    it "should set the API token from the session" do
-      token = "some_token"
-      session[TrackerApi::API_TOKEN_KEY] = token
-
-      Project.should_receive(:all).and_return([])
-      should be_success
-      TrackerApi.token.should == token
-    end
-
   end
 
   describe "#show" do

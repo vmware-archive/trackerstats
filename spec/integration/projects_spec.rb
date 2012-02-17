@@ -157,14 +157,3 @@ def projects_index_xml(projects)
   end
   builder.to_xml
 end
-
-#describe "the project details page" do
-#
-#  before do
-#    #session[:api_token] = "stubby_token"
-#    page.set_rack_session(:api_token => "stubby_token")
-#    visit '/projects/72'
-#  end
-#
-#
-#end

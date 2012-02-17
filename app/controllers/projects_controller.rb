@@ -35,7 +35,8 @@ class ProjectsController < ApplicationController
   private
 
   def init_api_token
-    TrackerApi.token = session[:api_token]
+    tracker_session = session[TrackerApi::API_TOKEN_KEY]
+    TrackerResource.init_session(tracker_session.api_token, tracker_session.session_key)
   end
 
   def init_project_and_date_range

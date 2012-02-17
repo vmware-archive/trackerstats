@@ -1,14 +1,21 @@
 class TrackerResource < ActiveResource::Base
   self.format = :xml
 
-  def self.headers
-    { 'X-TrackerToken' => TrackerApi.token }
-  end
+  class << self
+    def init_session(api_token, session_cache_key)
+      @@api_token = api_token
+      @@session_cache_key = session_cache_key
+    end
 
-  def self.find(*arguments)
-    cache_key = "#{self.name}-#{TrackerApi.token},#{arguments}"
-    Rails.cache.fetch(cache_key) do
-      super(*arguments)
-    end.try(:dup)
+    def headers
+      { 'X-TrackerToken' => @@api_token }
+    end
+
+    def find(*arguments)
+      cache_key = "#{self.name}-#{@@session_cache_key}-#{arguments}"
+      Rails.cache.fetch(cache_key) do
+        super(*arguments)
+      end.try(:dup)
+    end
   end
 end
