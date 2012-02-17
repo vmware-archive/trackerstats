@@ -22,6 +22,7 @@ end
 group :development do
   gem 'heroku'         , '>= 2.9.0'
   gem 'pivotal_git_scripts'
+  gem 'awesome_print'
 end
 
 group :test do

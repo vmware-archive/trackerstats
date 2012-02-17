@@ -33,6 +33,7 @@ GEM
     ansi (1.4.2)
     archive-tar-minitar (0.5.2)
     arel (2.2.1)
+    awesome_print (1.0.2)
     builder (3.0.0)
     capybara (1.1.2)
       mime-types (>= 1.16)
@@ -196,6 +197,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  awesome_print
   capybara (>= 1.1.2)
   coffee-rails (>= 3.1.1)
   evergreen
