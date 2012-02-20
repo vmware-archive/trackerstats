@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe "projects/show.html.haml" do
+describe "projects/show" do
   NUMBER_OF_CHARTS = 7
 
   let(:chart) { mock(:chart, :to_js => '') }
@@ -13,20 +13,6 @@ describe "projects/show.html.haml" do
     result
   }
   let(:project) { FactoryGirl.build :project }
-
-  #let(:iterations) {
-  #  [
-  #      FactoryGirl.build(:iteration_with_stories),
-  #      FactoryGirl.build(:iteration_with_stories),
-  #      FactoryGirl.build(:iteration_with_stories),
-  #  ]
-  #}
-  #
-  #let(:stories) {
-  #  all_stories = []
-  #  iterations.each do |iteration| all_stories += iteration.stories end
-  #  all_stories
-  #}
 
   before do
     assign :project, project
@@ -46,7 +32,6 @@ describe "projects/show.html.haml" do
       rendered.should have_css("#{chart_selector} div.tooltip_hotspot")
       rendered.should have_css("#{chart_selector} div.tooltip", text: "#{chart_selector} description")
     }
-
   end
 
   it "should have a slider for choosing the iteration range" do
