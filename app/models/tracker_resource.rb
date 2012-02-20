@@ -1,4 +1,6 @@
 class TrackerResource < ActiveResource::Base
+  CACHE_EXPIRY = 30.minutes
+
   self.format = :xml
 
   class << self
@@ -13,7 +15,7 @@ class TrackerResource < ActiveResource::Base
 
     def find(*arguments)
       cache_key = "#{self.name}-#{@@session_cache_key}-#{arguments}"
-      Rails.cache.fetch(cache_key) do
+      Rails.cache.fetch(cache_key, expires_in: CACHE_EXPIRY) do
         super(*arguments)
       end.try(:dup)
     end

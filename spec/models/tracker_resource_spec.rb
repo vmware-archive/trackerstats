@@ -11,6 +11,12 @@ describe TrackerResource do
       TrackerResource.site = "http://www.google.com"
     end
 
+    it "fetches from cache" do
+      Rails.cache.should_receive(:fetch).with(cache_key, {expires_in: TrackerResource::CACHE_EXPIRY})
+
+      TrackerResource.find(:all)
+    end
+
     it "hits the cache" do
       Rails.cache.write(cache_key, "value")
 
