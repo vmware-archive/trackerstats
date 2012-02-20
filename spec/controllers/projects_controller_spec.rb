@@ -5,8 +5,7 @@ describe ProjectsController do
     session[TrackerApi::API_TOKEN_KEY] = TrackerApi.login(api_token: "token123")
   end
 
-
- let(:project) {
+  let(:project) {
     FactoryGirl.build :project, name: "Fake Project!!", id: 12345
   }
 
@@ -41,14 +40,14 @@ describe ProjectsController do
   describe "#show" do
 
     subject do
-      get :show, { :id => project.id, :start_date => '2011-01-01' }
+      get :show, {:id => project.id, :start_date => '2011-01-01'}
     end
 
     it "should 'work' on a project with no stories" do
       Project.stub(:find) { project }
       project.stub(:stories) { [] }
       project.stub(:iterations) { [] }
-      
+
       subject.should be_success
     end
 
@@ -93,12 +92,12 @@ describe ProjectsController do
       project.stub(:stories) { stories }
       project.stub(:iterations) { iterations }
 
-      get :show, { :id => project.id, :start_date => '2011-01-01', Story::FEATURE => '1'}
+      get :show, {:id => project.id, :start_date => '2011-01-01', Story::FEATURE => '1'}
 
       iterations.length.should >= 0
 
       assigns[:charts][2].data_table.get_column(4).should_not be_nil
-      lambda {assigns[:charts][2].data_table.get_column(5)}.should raise_error NoMethodError
+      lambda { assigns[:charts][2].data_table.get_column(5) }.should raise_error NoMethodError
 
     end
 
