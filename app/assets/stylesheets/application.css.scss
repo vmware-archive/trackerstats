@@ -1,7 +1,8 @@
-/*= require jquery-ui/redmond */
 /*= require vendor/reset.css */
+/*= require jquery-ui/redmond */
 
 @import "layout.scss";
 @import "shared/mixins.scss";
 @import "base/typography.scss";
 @import "base/form.scss";
+@import "projects/*";

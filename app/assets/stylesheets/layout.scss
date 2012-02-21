@@ -15,18 +15,6 @@ footer {
   position: relative;
 }
 
-div.chart-container {
-    position: relative;
-
-    div.tooltip_hotspot{
-        right: 0;
-        top: 0;
-        cursor: pointer;
-        position: absolute;
-        margin: 5px;
-    }
-}
-
 header {
   padding: 10px;
   background-color: #256188;
@@ -69,39 +57,26 @@ header {
   }
 }
 
-.tooltip {
-    $padding: 25px;
-	display: none;
-	background: transparent url(/assets/jquerytools/white-small-tooltip.png);
-	font-size: 12px;
-	height: 109px - 2 * $padding;
-	width: 209px - 2 * $padding;
-	padding: $padding;
-	color: #000;
-}
-
-#iteration-range{
-    margin-top: 3px;
-}
-
-.hasDatepicker, .btn{
-   position: relative;
-   z-index: 1;
-}
-
-div.notice{
-    text-align: center;
-    color: green;
-    background: #FFE87C;
-    font-weight: bold;
-    padding: 0.5em;
-    border: 1px solid #CDB64A;
-    margin: 0.5em;
-}
-
 a.logout{
-   position: absolute;
-   right: 0;
-   top: 0;
-   font-size: x-small;
+  position: absolute;
+  right: 0;
+  top: 0;
+  font-size: x-small;
+}
+
+div.notice, div.alert{
+  text-align: center;
+  background: #FFE87C;
+  font-weight: bold;
+  padding: 0.5em;
+  border: 1px solid #CDB64A;
+  margin: 0.5em;
+}
+
+div.notice {
+  color: green;
+}
+
+div.alert{
+  color: red;
 }

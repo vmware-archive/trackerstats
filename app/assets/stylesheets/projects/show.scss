@@ -1,0 +1,31 @@
+#iteration-range{
+  margin-top: 3px;
+}
+
+.hasDatepicker, .btn{
+  position: relative;
+  z-index: 1;
+}
+
+div.chart-container {
+  position: relative;
+
+  div.tooltip_hotspot{
+    right: 0;
+    top: 0;
+    cursor: pointer;
+    position: absolute;
+    margin: 5px;
+  }
+}
+
+.tooltip {
+  $padding: 25px;
+	display: none;
+	background: transparent url(/assets/jquerytools/white-small-tooltip.png);
+	font-size: 12px;
+	height: 109px - 2 * $padding;
+	width: 209px - 2 * $padding;
+	padding: $padding;
+	color: #000;
+}
