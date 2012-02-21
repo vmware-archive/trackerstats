@@ -1,7 +1,14 @@
 require File.expand_path('../boot', __FILE__)
 
 # Require all Rails gems
-require "rails/all"
+# require "rails/all"
+
+# Pick the frameworks you want: (excludes ActiveRecord)
+# require "active_record/railtie"
+require "action_controller/railtie"
+require "action_mailer/railtie"
+require "active_resource/railtie"
+require "sprockets/railtie"
 
 if defined?(Bundler)
   # If you precompile assets before deploying to production, use this line

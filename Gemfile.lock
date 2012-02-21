@@ -92,7 +92,6 @@ GEM
     mime-types (1.17.2)
     multi_json (1.1.0)
     nokogiri (1.5.0)
-    pg (0.13.1)
     pivotal_git_scripts (1.1.0)
     polyglot (0.3.3)
     rack (1.4.1)
@@ -199,7 +198,6 @@ DEPENDENCIES
   jquery-rails (>= 1.0.19)
   jquery-ui-themes (>= 0.0.4)
   nokogiri (>= 1.3.3)
-  pg (>= 0.11.0)
   pivotal_git_scripts
   rails (= 3.2.1)
   rest-client (>= 1.6.7)
