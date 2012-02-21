@@ -10,7 +10,7 @@ class TrackerResource < ActiveResource::Base
     end
 
     def headers
-      { 'X-TrackerToken' => @@api_token }
+      TrackerApi.default_headers(@@api_token)
     end
 
     def find(*arguments)
