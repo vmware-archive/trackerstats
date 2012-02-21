@@ -31,6 +31,8 @@ describe SessionsController do
       let(:params) { { api_token: api_token } }
 
       it "sessionizes API Token" do
+        RestClient.should_receive(:get)
+
         do_request
 
         session[TrackerApi::API_TOKEN_KEY].should be_an_instance_of(TrackerApi)
@@ -45,7 +47,7 @@ describe SessionsController do
       it "redirects to root with flash" do
         do_request
 
-        response.should redirect_to root_path
+        response.should redirect_to login_path
         flash[:alert].should == "We were not able to authenticate you lah."
       end
     end
@@ -55,6 +57,7 @@ describe SessionsController do
     let(:api_token) { "12345"}
 
     before do
+      RestClient.should_receive(:get)
       TrackerApi.login(api_token: api_token)
       session[TrackerApi::API_TOKEN_KEY] = api_token
     end

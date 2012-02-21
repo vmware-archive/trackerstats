@@ -2,6 +2,7 @@ require 'spec_helper'
 
 describe ProjectsController do
   before do
+    RestClient.should_receive(:get)
     session[TrackerApi::API_TOKEN_KEY] = TrackerApi.login(api_token: "token123")
   end
 
