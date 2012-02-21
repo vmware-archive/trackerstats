@@ -134,7 +134,7 @@ end
 def log_in_with_api_token(stub_projects = [])
   RestClient.stub(:get)
   stub_request(:get, "https://www.pivotaltracker.com/services/v3/projects.xml")
-    .with(:headers => { 'X-Trackertoken'=>'faker_token' })
+    .with(:headers => TrackerApi.default_headers('faker_token'))
     .to_return(:status => 200, :body => projects_index_xml(stub_projects), :headers => {})
 
   visit "/"

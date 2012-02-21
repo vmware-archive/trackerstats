@@ -9,7 +9,7 @@ class TrackerApi
     def login(options)
       if api_token = options[:api_token].presence
         # this makes a quick API call to see if the api token is correct
-        RestClient.get(API_BASE_PATH + '/activities?limit=1', {"X-TrackerToken" => api_token})
+        RestClient.get(API_BASE_PATH + '/activities?limit=1', self.default_headers(api_token) )
       elsif options[:username].present? && options[:password].present?
         response = RestClient.post(API_BASE_PATH + '/tokens/active', username: options[:username], password: options[:password])
         api_token = Nokogiri::XML(response.body).search('guid').inner_html
@@ -19,6 +19,10 @@ class TrackerApi
 
     rescue RestClient::Unauthorized
       nil
+    end
+
+    def default_headers(api_token)
+      { 'X-TrackerToken' => api_token }
     end
   end
 

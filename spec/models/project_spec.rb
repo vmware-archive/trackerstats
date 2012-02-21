@@ -4,7 +4,7 @@ describe "Project" do
 
   let(:api_token) { "fake_token" }
   let(:project) { FactoryGirl.build :project }
-  let(:headers) { { 'X-TrackerToken' => api_token} }
+  let(:headers) { TrackerApi.default_headers(api_token) }
 
   before do
     Rails.cache.clear

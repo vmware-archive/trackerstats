@@ -16,7 +16,7 @@ describe TrackerApi do
 
       it "logins with api_token" do
         RestClient.should_receive(:get)
-          .with("#{TrackerApi::API_BASE_PATH}/activities?limit=1", {"X-TrackerToken" => api_token})
+          .with("#{TrackerApi::API_BASE_PATH}/activities?limit=1", TrackerApi.default_headers(api_token) )
 
         session = TrackerApi.login(api_token: api_token)
         session.should be_an_instance_of(TrackerApi)
