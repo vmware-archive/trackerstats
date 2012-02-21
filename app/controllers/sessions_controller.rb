@@ -5,12 +5,12 @@ class SessionsController < ApplicationController
 
   def create
     tracker_session = TrackerApi.login(username: params[:username], password: params[:password], api_token: params[:api_token])
+
     if tracker_session
       session[TrackerApi::API_TOKEN_KEY] = tracker_session
       redirect_to projects_path
     else
-      flash[:alert] = "We were not able to authenticate you lah."
-      redirect_to :root
+      redirect_to login_path, alert: "We were not able to authenticate you lah."
     end
   end
 
